@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # =========================
 # BASE
@@ -13,7 +14,26 @@ SECRET_KEY = 'django-insecure-07(pa2udqy5o@94bi8foo&*kg!%ls+*%5pxq^h1v4ryap)wr^r
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 1. On autorise toujours le local
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# 2. On ajoute dynamiquement l'URL Render (Variable automatique de Render)
+# Cette variable est TOUJOURS présente sur Render, pas besoin de la créer
+render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if render_external_hostname:
+    ALLOWED_HOSTS.append(render_external_hostname)
+
+# 3. On ajoute manuellement votre domaine spécifique par sécurité
+ALLOWED_HOSTS.append('mbongi-agents.onrender.com')
+
+# 4. Optionnel : On ajoute la variable d'environnement personnalisée si elle existe
+env_hosts = os.environ.get("ALLOWED_HOSTS")
+if env_hosts:
+    ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(",")])
+
+# Nettoyage final pour éviter les doublons
+ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
+
 
 
 # =========================
