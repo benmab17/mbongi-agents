@@ -56,11 +56,12 @@ CSRF_TRUSTED_ORIGINS = [
 if render_external_hostname:
     CSRF_TRUSTED_ORIGINS.append(f"https://{render_external_hostname}")
 
-# --- CONFIGURATION DES FICHIERS STATIQUES (Recommandé pour Render) ---
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# --- CONFIGURATION DES FICHIERS STATIQUES (Render / WhiteNoise) ---
 
-# Si vous installez 'whitenoise', ajoutez-le dans vos MIDDLEWARE (juste après SecurityMiddleware)
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # =========================
