@@ -1,0 +1,52 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Répondre au Ticket de Recoupement</h2>
+    <hr>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">{{ ticket.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Échéance: {{ ticket.due_at|date:"d/m/Y H:i" }}</h6>
+        </div>
+        <div class="card-body">
+            <p><strong>Niveau:</strong> <span class="badge bg-{{ ticket.level|lower }}">{{ ticket.level }}</span></p>
+            <p><strong>Évidence à vérifier:</strong> {{ ticket.evidence }}</p>
+            <p><strong>Mots-clés:</strong> {{ ticket.keywords }}</p>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Votre Réponse
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_content" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_confidence" class="form-label">{{ form.confidence.label }}</label>
+                    {{ form.confidence }}
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer la réponse</button>
+                <a href="{% url 'agent_recoupements' %}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-yellow { background-color: #ffc107; }
+.bg-orange { background-color: #fd7e14; }
+.bg-red { background-color: #dc3545; }
+textarea.form-control {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+}
+</style>
+{% endblock %}

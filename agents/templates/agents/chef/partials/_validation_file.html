@@ -1,0 +1,13 @@
+<ul class="cc-validation-list">
+    {% for contribution in validation_queue %}
+    <li>
+        <span class="cc-contrib-priority priority-{{ contribution.priorite }}">P{{ contribution.priorite }}</span>
+        <span class="cc-contrib-title">{{ contribution.titre }}</span>
+        <span class="cc-contrib-agent">{{ contribution.agent.nom }}</span>
+        <span class="cc-contrib-date">{{ contribution.date_creation|date:"d/m H:i" }}</span>
+        <a href="{% url 'contribution_review' contribution.pk %}" class="btn btn-sm btn-action">Revoir</a>
+    </li>
+    {% empty %}
+    <li>Aucune contribution en attente de validation.</li>
+    {% endfor %}
+</ul>

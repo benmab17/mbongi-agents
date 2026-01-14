@@ -1,0 +1,17 @@
+<ul class="cc-timeline">
+    {% for event in timeline_events %}
+    <li class="cc-timeline-item">
+        <div class="cc-timeline-date">{{ event.timestamp|date:"d/m H:i" }}</div>
+        <div class="cc-timeline-content">
+            <span class="cc-timeline-user">{{ event.user.username|default:"Système" }}</span>
+            <span class="cc-timeline-action cc-action-{{ event.event_level|lower }}">{{ event.action_display }}</span>
+            <span class="cc-timeline-description">{{ event.event_description }}</span>
+            {% if event.ip_address %}
+                <span class="cc-timeline-ip">IP: {{ event.ip_address }}</span>
+            {% endif %}
+        </div>
+    </li>
+    {% empty %}
+    <li class="cc-timeline-item">Aucune activité récente dans les dernières 72 heures.</li>
+    {% endfor %}
+</ul>

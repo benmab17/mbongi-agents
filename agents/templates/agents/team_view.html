@@ -1,0 +1,69 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h1 class="card-title mb-0">VUE CHEF — SUPERVISION</h1>
+            {% if me.service %}
+            <p class="card-subtitle mt-1">Service : {{ me.service.nom }} • Agents supervisés : {{ agents|length }}</p>
+            {% endif %}
+            {% if is_chef %}
+            <a href="{% url 'mission_create' %}" class="btn btn-primary mt-2">+ Nouvelle mission</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpis mb-4">
+        <div class="kpi">
+            <div class="label">Agents Actifs</div>
+            <div class="value">{{ agents|length }}</div>
+        </div>
+        <div class="kpi">
+            <div class="label">Contributions (Total)</div>
+            <div class="value">{{ stats.total_contributions|default:"—" }}</div>
+        </div>
+        <div class="kpi">
+            <div class="label">Contributions Soumises</div>
+            <div class="value">{{ stats.submitted_contributions|default:"—" }}</div>
+        </div>
+    </div>
+
+    <!-- Agent Grid -->
+    <div class="team-grid">
+        {% for agent in agents %}
+        <div class="card agent-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    {% if agent.photo %}
+                        <img src="{{ agent.photo.url }}" class="agent-photo me-3" alt="Photo de {{ agent.nom }}">
+                    {% else %}
+                        <div class="agent-photo-placeholder me-3" aria-label="Pas de photo">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
+                        </div>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                        <h5 class="card-title mb-0">{{ agent.nom }} {{ agent.prenom }}</h5>
+                        <p class="card-text muted small">{{ agent.matricule }}</p>
+                    </div>
+                </div>
+                
+                <div class="agent-details">
+                    <p><strong>Fonction :</strong> {{ agent.fonction|default:"N/A" }}</p>
+                    <p><strong>Unité :</strong> {{ agent.unite|default:"N/A" }}</p>
+                </div>
+
+                <a href="/agents/profile/?a={{ agent.id }}" class="btn btn-primary mt-3">Voir dossier</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert">
+            Aucun agent à superviser dans ce service.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

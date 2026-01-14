@@ -1,0 +1,27 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'agents/hud.css' %}">
+
+<div class="hud-frame" style="max-width:900px; margin:0 auto;">
+  <div class="card" style="padding:18px;">
+    <div class="section-title">Mettre à jour la photo</div>
+
+    <form method="post" enctype="multipart/form-data" style="margin-top:12px;">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <button class="btn" type="submit">Enregistrer</button>
+        <a class="btn" href="{% url 'agent_profile' %}">Retour</a>
+      </div>
+    </form>
+
+    <div class="muted" style="margin-top:10px;">
+      Formats conseillés : JPG/PNG. Photo carrée recommandée.
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

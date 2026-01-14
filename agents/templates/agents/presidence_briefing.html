@@ -1,0 +1,652 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/presidence.css' %}">
+<link rel="stylesheet" href="{% static 'agents/vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Removed template debug marker -->
+<div class="command-center-shell">
+    <header class="cc-header">
+        <div class="cc-header-left">
+            <div class="cc-republic">RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</div>
+            <div class="cc-center-name">CENTRE DE SITUATION NATIONALE — MBONGI-INTEL</div>
+        </div>
+        <div class="cc-header-right">
+            {% if is_cns %}
+            <a href="{% url 'cns_dashboard' %}" class="btn btn-outline-light btn-sm me-2">⬅ Retour CNS</a>
+            {% endif %}
+            <a href="{% url 'presidence_briefing_pdf' %}" class="btn btn-primary btn-sm me-2">Exporter PDF</a>
+            <div class="cc-last-update">DERNIÈRE MISE À JOUR : {{ last_update|date:"d/m/Y H:i:s" }}</div>
+        </div>
+    </header>
+
+    <section class="cc-panel cc-alert-panel">
+        <div class="cc-panel-title">ALERTES INTELLIGENTES</div>
+        <div class="cc-alert-display {{ alert_level|lower }}">
+            <span class="cc-alert-badge">{{ alert_level }}</span>
+            <ul class="cc-alert-reasons">
+                {% for reason in alert_reasons %}
+                    <li>{{ reason }}</li>
+                {% empty %}
+                    <li>Aucune alerte significative. Opérations normales.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    <section class="cc-panel">
+        <div class="cc-panel-title">AVIS CNS</div>
+        {% if cns_avis_recent %}
+            <ul class="cc-activity-list">
+                {% for avis in cns_avis_recent %}
+                <li>
+                    <span class="activity-date">{{ avis.created_at|date:"d/m H:i" }}</span>
+                    <span class="activity-object">{{ avis.title }}</span>
+                    <span class="badge bg-secondary">{{ avis.get_urgency_display }}</span>
+                    <span class="activity-responsible">Par: {{ avis.created_by.username|default:"N/A" }}</span>
+                    <div class="small">{{ avis.content|truncatechars:140 }}</div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun avis CNS récent.</p>
+        {% endif %}
+    </section>
+
+    <main class="cc-main-grid">
+        <section class="cc-panel cc-status-panel">
+            <div class="cc-panel-title">STATUT NATIONAL</div>
+            <div class="cc-status-display {{ national_status_color }}">
+                {{ national_status }}
+            </div>
+            <p class="cc-status-summary">{{ national_status_summary }}</p>
+        </section>
+
+        <section class="cc-kpis-panel">
+            <div class="cc-panel-title">INDICATEURS CLÉS</div>
+            {% include 'agents/presidence/partials/_kpis.html' %}
+        </section>
+
+        <section class="cc-panel cc-map-panel">
+            <div class="cc-panel-title">CARTE OP&Eacute;RATIONNELLE RDC</div>
+            <div class="cc-map-wrap" style="position:relative;">
+                <div class="cc-map-grid-bg"></div>
+                <div id="rdcMap" style="height:420px;width:100%;border:1px solid rgba(0,255,136,0.35);border-radius:10px;"></div>
+                <div class="cc-map-detail-panel" id="rdc-evolution-panel" style="position:absolute;top:12px;right:12px;display:none;z-index:1200;max-width:280px;background:rgba(5,14,10,0.9);border:1px solid rgba(0,255,136,0.45);border-radius:10px;padding:12px;opacity:1;">
+                    <div class="detail-label" id="rdc-evolution-title">&Eacute;volution 7 jours &mdash;</div>
+                    <div class="detail-justification">
+                        <span id="rdc-evolution-risk-badge" style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;border:1px solid rgba(0,255,136,0.4);background:rgba(0,255,136,0.12);color:#ffffff;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Risque : --</span>
+                    </div>
+                    <div class="evolution-content" style="max-height:60vh;overflow-y:auto;overflow-x:hidden;">
+                        <div class="detail-justification" id="rdc-evolution-confidence">Niveau d'information : --</div>
+                        <div class="detail-justification" id="rdc-evolution-kpi-1">Incidents (7j): 0 | Semaine pr&eacute;c&eacute;dente: 0</div>
+                        <div class="detail-justification" id="rdc-evolution-kpi-2">Tendance: stable | Risque: faible</div>
+                        <div class="detail-justification">
+                            <div style="font-weight:600;margin:6px 0 4px 0;">Tendance 7 jours</div>
+                            <div id="rdc-evolution-sparkline" style="display:flex;align-items:flex-end;gap:4px;height:28px;"></div>
+                            <div id="rdc-evolution-sparkline-note" style="font-size:11px;opacity:0.7;margin-top:4px;display:none;">Lecture indicative</div>
+                        </div>
+                        <div class="detail-justification"><strong>Signaux dominants:</strong> <span id="rdc-evolution-signals">N/A</span></div>
+                        <div class="detail-justification"><strong>Hotspots:</strong> <span id="rdc-evolution-hotspots">N/A</span></div>
+                        <div class="detail-justification"><strong>Projection 7j:</strong> <span id="rdc-evolution-projection">N/A</span></div>
+                        <div class="detail-justification"><strong>Recommandation:</strong> <span id="rdc-evolution-recommendation">N/A</span></div>
+                        <div class="detail-justification">
+                            <div style="font-weight:600;margin:6px 0 4px 0;">Avis CNS r&eacute;cents</div>
+                            <div id="rdc-evolution-avis">Aucun avis CNS r&eacute;cent pour cette zone</div>
+                        </div>
+                    </div>
+                    <div class="evolution-footer" style="margin-top:10px;">
+                        <button type="button" class="btn btn-sm btn-outline-light" id="rdc-evolution-close" data-action="close-evolution">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cc-panel">
+            <div class="cc-panel-title">TRA&Ccedil;ABILIT&Eacute; STRAT&Eacute;GIQUE (7 JOURS)</div>
+            <p>Avis transmis : <strong>{{ trace_transmit_count }}</strong></p>
+            <p>Avis lus : <strong>{{ trace_read_count }}</strong></p>
+            <p>Taux de lecture : <strong>{{ trace_read_rate }}%</strong></p>
+            <p>D&eacute;lai moyen de lecture : <strong>{% if trace_avg_delay_minutes is not None %}{{ trace_avg_delay_minutes }} min{% else %}N/A{% endif %}</strong></p>
+            <p>Derni&egrave;re lecture : <strong>{% if trace_last_read %}{{ trace_last_read.user.username|default:"N/A" }} &mdash; {{ trace_last_read.timestamp|date:"d/m H:i" }} &mdash; {{ trace_last_read.target_repr|default:"N/A" }}{% else %}N/A{% endif %}</strong></p>
+        </section>
+
+        <section class="cc-panel cc-ai-panel">
+            <div class="cc-panel-title">SYNTHÈSE IA & PROJECTION</div>
+            <p class="cc-ai-summary">{{ ai_summary }}</p>
+            <div class="cc-ai-projection">{{ ai_projection }}</div>
+            <div class="cc-ai-recommendation">Recommandation : {{ ai_recommendation }}</div>
+        </section>
+
+        <section class="cc-panel cc-decisions-panel">
+            <div class="cc-panel-title">DERNIÈRES DÉCISIONS</div>
+            <ul class="cc-decision-list cc-decision-list-briefing">
+                {% for decision in latest_decisions %}
+                <li>
+                    <span class="cc-decision-time">{{ decision.created_at|date:"d/m H:i" }}</span>
+                    <span class="cc-decision-user">{{ decision.created_by.username|default:"N/A" }}</span>
+                    <span class="cc-decision-action cc-action-{{ decision.decision|lower }}">{{ decision.get_decision_display }}</span>
+                    <span class="cc-decision-title">{{ decision.title|truncatechars:50 }}</span>
+                </li>
+                {% empty %}
+                <li>Aucune décision récente.</li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'decision_list' %}" class="cc-link-more">Voir toutes les décisions</a>
+        </section>
+
+        <section class="cc-panel cc-signals-panel">
+            <div class="cc-panel-title">SIGNAUX FAIBLES — 72H</div>
+            <ul class="cc-signal-list">
+                {% for signal in weak_signals %}
+                <li class="cc-signal">
+                    <div class="cc-signal-header">
+                        <span class="cc-signal-badge level-{{ signal.level|lower }}">{{ signal.level }}</span>
+                        <span class="cc-signal-title">{{ signal.title }}</span>
+                        <span class="cc-signal-trend trend-{{ signal.trend|lower }}">
+                            {% if signal.trend == 'UP' %}▲
+                            {% elif signal.trend == 'DOWN' %}▼
+                            {% else %}~
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="cc-signal-body">
+                        <p class="cc-signal-evidence"><strong>Évidence :</strong> {{ signal.evidence }}</p>
+                        <p class="cc-signal-action"><strong>Action :</strong> {{ signal.action_hint }}</p>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="cc-signal-empty">Aucun signal faible détecté sur 72h.</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="cc-panel cc-recent-activity-panel">
+            <div class="cc-panel-title">DÉCISIONS & ESCALADES RÉCENTES</div>
+            <ul class="cc-activity-list">
+                {% for activity in recent_decisions_escalations %}
+                <li>
+                    <span class="activity-date">{{ activity.date|date:"d/m H:i" }}</span>
+                    <span class="activity-type">{{ activity.type }}</span>
+                    {% if activity.level and activity.level != 'INFO' %}
+                        <span class="cc-signal-badge level-{{ activity.level|lower }}">{{ activity.level }}</span>
+                    {% endif %}
+                    <span class="activity-object">{{ activity.objet }}</span>
+                    {% if activity.reaction_time %}
+                        <span class="activity-reaction-time">(Réaction: {{ activity.reaction_time }}h)</span>
+                    {% endif %}
+                    <span class="activity-responsible">Par: {{ activity.responsible }}</span>
+                </li>
+                {% empty %}
+                <li>Aucune escalade ou décision récente.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
+
+    <section class="cc-panel cc-executive-dashboard">
+        <div class="cc-panel-title">TABLEAU EXÉCUTIF</div>
+
+        <div class="kpi-line-cards">
+            <div class="kpi-card">
+                <div class="kpi-value">{{ kpi_presidence.contributions_received_72h }}</div>
+                <div class="kpi-label">Contributions reçues (72h)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">{{ kpi_presidence.contributions_validated_72h }}</div>
+                <div class="kpi-label">Contributions validées (72h)</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">{{ kpi_presidence.recoupements_open }}</div>
+                <div class="kpi-label">Recoupements ouverts</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value {% if kpi_presidence.recoupements_overdue > 0 %}kpi-value-red{% endif %}">{{ kpi_presidence.recoupements_overdue }}</div>
+                <div class="kpi-label">Recoupements en retard</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">{{ kpi_presidence.missions_active }}</div>
+                <div class="kpi-label">Missions actives</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-value">{% if kpi_presidence.avg_reaction_time_h != 'N/A' %}{{ kpi_presidence.avg_reaction_time_h }}h{% else %}{{ kpi_presidence.avg_reaction_time_h }}{% endif %}</div>
+                <div class="kpi-label">Délai moyen réaction</div>
+            </div>
+        </div>
+
+        <div class="state-reaction-block">
+            <h3>RÉACTION DE L'ÉTAT</h3>
+            <div class="reaction-item">
+                <span class="reaction-label">En retard:</span>
+                <span class="reaction-value {% if state_reaction.overdue_count > 0 %}value-red{% endif %}">{{ state_reaction.overdue_count }}</span>
+                <span class="reaction-message">{% if state_reaction.overdue_count > 0 %}Action requise{% else %}Aucun recoupement en retard{% endif %}</span>
+            </div>
+            <div class="reaction-item">
+                <span class="reaction-label">En traitement:</span>
+                <span class="reaction-value">{{ state_reaction.in_progress_recoupements }}</span>
+                <span class="reaction-message">Recoupements en cours de vérification.</span>
+            </div>
+            <div class="reaction-item">
+                <span class="reaction-label">Escalades:</span>
+                <span class="reaction-value">{{ state_reaction.escalated_missions }}</span>
+                <span class="reaction-message">Recoupements transformés en missions.</span>
+            </div>
+            <h4>SERVICES SOUS PRESSION (72h)</h4>
+            {% if state_reaction.services_under_pressure %}
+                <ul class="services-pressure-list">
+                    {% for service in state_reaction.services_under_pressure %}
+                        <li>{{ service.name }}: {{ service.overdue_count }} recoupement(s) en retard</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Aucun service sous pression critique.</p>
+            {% endif %}
+        </div>
+
+        <div class="focus-72h-block">
+            <h3>FOCUS 72H</h3>
+            <div class="focus-list-group">
+                <h4>Top 5 Thèmes</h4>
+                {% if focus_72h.top_themes %}
+                    <ul>
+                        {% for theme in focus_72h.top_themes %}
+                            <li>{{ theme }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>N/A</p>
+                {% endif %}
+            </div>
+            <div class="focus-list-group">
+                <h4>Top 5 Zones</h4>
+                {% if focus_72h.top_zones %}
+                    <ul>
+                        {% for zone in focus_72h.top_zones %}
+                            <li>{{ zone }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>N/A</p>
+                {% endif %}
+            </div>
+            <div class="focus-list-group">
+                <h4>Top 5 Signaux Faibles</h4>
+                {% if focus_72h.top_weak_signals %}
+                    <ul>
+                        {% for signal in focus_72h.top_weak_signals %}
+                            <li>{{ signal.title }} ({{ signal.level }})</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Aucun signal faible détecté.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="institutional-actions-table">
+            <h3>DERNIÈRES ACTIONS INSTITUTIONNELLES</h3>
+            {% if institutional_actions %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Objet</th>
+                            <th>Acteur</th>
+                            <th>Statut</th>
+                            <th>Niveau</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for action in institutional_actions %}
+                        <tr>
+                            <td>{{ action.date|date:"d/m H:i" }}</td>
+                            <td>{{ action.type }}</td>
+                            <td>{{ action.objet }}</td>
+                            <td>{{ action.actor }}</td>
+                            <td>{{ action.status }}</td>
+                            <td><span class="cc-signal-badge level-{{ action.level|lower }}">{{ action.level }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Aucune action institutionnelle récente.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="cc-panel cc-timeline-panel">
+        <div class="cc-panel-title">CHRONOLOGIE NATIONALE – 72H</div>
+        {% include 'agents/presidence/partials/_timeline.html' %}
+    </section>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{{ zone_evolution_data|json_script:"zone-evolution-data" }}
+<script id="cns-avis-data" type="application/json">[
+{% for avis in cns_avis_recent %}
+  {"title":"{{ avis.title|escapejs }}","content":"{{ avis.content|default:''|escapejs }}","date":"{{ avis.created_at|date:'d/m H:i' }}","urgency":"{{ avis.get_urgency_display|escapejs }}","link":"{% url 'cns_avis_list' %}"}{% if not forloop.last %},{% endif %}
+{% endfor %}
+]</script>
+<script src="{% static 'accounts/presidence.js' %}"></script>
+<script src="{% static 'agents/vendor/leaflet/leaflet.js' %}"></script>
+<script>
+(() => {
+    const geojsonUrl = "{% static 'agents/maps/rdc.geojson' %}";
+    const panel = document.getElementById("rdc-evolution-panel");
+    const title = document.getElementById("rdc-evolution-title");
+    const riskBadge = document.getElementById("rdc-evolution-risk-badge");
+    const confidenceEl = document.getElementById("rdc-evolution-confidence");
+    const kpi1 = document.getElementById("rdc-evolution-kpi-1");
+    const kpi2 = document.getElementById("rdc-evolution-kpi-2");
+    const sparkline = document.getElementById("rdc-evolution-sparkline");
+    const sparklineNote = document.getElementById("rdc-evolution-sparkline-note");
+    const signals = document.getElementById("rdc-evolution-signals");
+    const hotspots = document.getElementById("rdc-evolution-hotspots");
+    const projection = document.getElementById("rdc-evolution-projection");
+    const recommendation = document.getElementById("rdc-evolution-recommendation");
+    const avisContainer = document.getElementById("rdc-evolution-avis");
+    const closeBtn = document.getElementById("rdc-evolution-close");
+    const mapEl = document.getElementById("rdcMap");
+    if (!mapEl || !window.L) {
+        return;
+    }
+
+
+    const evolutionScript = document.getElementById("zone-evolution-data");
+    const ZONE_EVOLUTION = evolutionScript ? JSON.parse(evolutionScript.textContent) : {};
+    const avisScript = document.getElementById("cns-avis-data");
+    const CNS_AVIS_RECENT = avisScript ? JSON.parse(avisScript.textContent) : [];
+    // État global : le panneau a-t-il été fermé par l'utilisateur ?
+let evolutionPanelClosedByUser = false;
+
+// Binding unique du bouton "Fermer"
+if (!window.__evolutionCloseBound) {
+    document.addEventListener("click", function (event) {
+        const btn = event.target.closest('[data-action="close-evolution"]');
+        if (!btn) return;
+
+        const panel = document.getElementById("rdc-evolution-panel");
+        if (!panel) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        evolutionPanelClosedByUser = true;
+        panel.style.display = "none";
+    }, true);
+
+    window.__evolutionCloseBound = true;
+}
+
+
+    function showPanel(region) {
+        if (!panel || !title || !riskBadge || !confidenceEl || !kpi1 || !kpi2 || !sparkline || !sparklineNote || !signals || !hotspots || !projection || !recommendation || !avisContainer) {
+            return;
+        }
+        const data = ZONE_EVOLUTION[region] || {
+            trend: "stable",
+            risk: "faible",
+            incidents_7d: 0,
+            incidents_prev7d: 0,
+            top_signals: [],
+            hotspots: [],
+            projection_7d: "",
+            recommendation: "",
+        };
+        let confidence = "VISIBILITE SUFFISANTE";
+        if (data.incidents_7d === 0) {
+            confidence = "AUCUN SIGNAL";
+        } else if (data.incidents_7d <= 2) {
+            confidence = "VISIBILITE PARTIELLE";
+        }
+        title.textContent = "\u00c9volution 7 jours \u2014 " + region;
+        const riskKey = (data.risk || "inconnu").toLowerCase();
+        const riskColors = {
+            faible: { bg: "rgba(0,255,136,0.18)", border: "rgba(0,255,136,0.55)" },
+            modere: { bg: "rgba(255,214,0,0.18)", border: "rgba(255,214,0,0.55)" },
+            eleve: { bg: "rgba(255,138,0,0.2)", border: "rgba(255,138,0,0.6)" },
+            critique: { bg: "rgba(255,64,64,0.2)", border: "rgba(255,64,64,0.6)" },
+            inconnu: { bg: "rgba(160,160,160,0.18)", border: "rgba(160,160,160,0.45)" },
+        };
+        const riskStyle = riskColors[riskKey] || riskColors.inconnu;
+        riskBadge.textContent = `Risque : ${riskKey}`;
+        riskBadge.style.background = riskStyle.bg;
+        riskBadge.style.borderColor = riskStyle.border;
+        confidenceEl.textContent = `Niveau d'information : ${confidence}`;
+        kpi1.textContent = `Incidents (7j): ${data.incidents_7d} | Semaine precedente: ${data.incidents_prev7d}`;
+        kpi2.textContent = `Tendance: ${data.trend} | Risque: ${data.risk}`;
+        const spark = [];
+        if (data.incidents_7d === 0 && data.incidents_prev7d === 0) {
+            for (let i = 0; i < 7; i += 1) {
+                spark.push(1);
+            }
+            sparklineNote.style.display = "block";
+        } else {
+            const baseline = Math.max(1, Math.round(data.incidents_7d / 7));
+            for (let i = 0; i < 7; i += 1) {
+                spark.push(baseline + (i % 3 === 0 ? 1 : 0));
+            }
+            sparklineNote.style.display = "none";
+        }
+        sparkline.innerHTML = "";
+        const maxVal = Math.max(...spark, 1);
+        let sparkColor = "rgba(0,255,136,0.65)";
+        if (data.trend === "hausse" && (data.risk === "eleve" || data.risk === "critique")) {
+            sparkColor = "rgba(255,64,64,0.7)";
+        } else if (data.trend === "hausse") {
+            sparkColor = "rgba(255,138,0,0.7)";
+        }
+        spark.forEach((val) => {
+            const bar = document.createElement("span");
+            const height = Math.max(6, Math.round((val / maxVal) * 26));
+            bar.style.display = "inline-block";
+            bar.style.width = "10px";
+            bar.style.height = `${height}px`;
+            bar.style.background = sparkColor;
+            bar.style.borderRadius = "6px";
+            bar.style.opacity = "0.9";
+            sparkline.appendChild(bar);
+        });
+        if (confidence === "AUCUN SIGNAL") {
+            signals.textContent = "Aucun signal confirme (7j)";
+            hotspots.textContent = "Aucun foyer identifie";
+            projection.textContent = "Situation calme ou absence de remontees.";
+            recommendation.textContent = "Maintenir la veille standard et ameliorer la remontee terrain.";
+        } else if (confidence === "VISIBILITE PARTIELLE") {
+            signals.textContent = "Indices limites — tendance a confirmer";
+            hotspots.textContent = "Donnees partielles — localisation a preciser";
+            projection.textContent = "Lecture prudente — consolidation en cours.";
+            recommendation.textContent = "Renforcer la collecte ciblee et verifier les signaux faibles.";
+        } else {
+            signals.textContent = data.top_signals.length ? data.top_signals.join(", ") : "N/A";
+            hotspots.textContent = data.hotspots.length ? data.hotspots.join(", ") : "N/A";
+            projection.textContent = data.projection_7d || "N/A";
+            recommendation.textContent = data.recommendation || "N/A";
+        }
+        const zoneKey = region.toLowerCase();
+        const matchingAvis = CNS_AVIS_RECENT.filter((avis) => {
+            const titleText = (avis.title || "").toLowerCase();
+            const contentText = (avis.content || "").toLowerCase();
+            const combined = `${titleText} ${contentText}`;
+            return combined.includes(zoneKey) || combined.includes("national");
+        }).slice(0, 2);
+        if (!matchingAvis.length) {
+            avisContainer.textContent = "Aucun avis CNS recent pour cette zone";
+        } else {
+            avisContainer.innerHTML = "";
+            matchingAvis.forEach((avis) => {
+                const item = document.createElement("div");
+                item.style.marginBottom = "6px";
+                item.innerHTML = `<strong>${avis.title}</strong><br><span style="opacity:0.8;">${avis.date} | ${avis.urgency}</span> <a href="${avis.link}" style="color:#9cffd6;text-decoration:none;">Voir l'avis</a>`;
+                avisContainer.appendChild(item);
+            });
+        }
+        panel.style.display = "block";
+        Object.keys(zoneLayers).forEach((zone) => {
+            const layer = zoneLayers[zone];
+            if (!layer) {
+                return;
+            }
+            if (zone === region) {
+                layer.setStyle({ fillOpacity: 0.28, weight: 2, fillColor: riskStyle.border });
+            } else {
+                layer.setStyle({ fillOpacity: 0.12, weight: 1.2, fillColor: "#00ff88" });
+            }
+        });
+    }
+
+    function openEvolutionPanel(zoneName) {
+        console.log("[EVOL] openEvolutionPanel", zoneName);
+        if (evolutionPanelClosedByUser) {
+            return;
+        }
+        if (panel) {
+            if (panel.parentElement !== document.body) {
+                document.body.appendChild(panel);
+            }
+            panel.style.position = "fixed";
+            panel.style.top = "20px";
+            panel.style.right = "20px";
+            panel.style.display = "block";
+            panel.style.zIndex = "99999";
+            panel.style.maxHeight = "80vh";
+            panel.style.overflow = "auto";
+            panel.style.opacity = "1";
+        }
+        showPanel(zoneName);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            evolutionPanelClosedByUser = true;
+            panel.style.display = "none";
+        });
+    }
+
+    const provinceUrl = "{% static 'agents/maps/rdc_provinces.geojson' %}";
+    const map = L.map("rdcMap", { zoomControl: false, attributionControl: false });
+    map.setView([ -2.5, 23.0 ], 5);
+    window.__mbongiMap = map;
+
+    try {
+        const tiles = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            maxZoom: 18
+        });
+        tiles.on("tileerror", () => {});
+        tiles.addTo(map);
+    } catch (e) {
+        // Offline safe
+    }
+
+    function normalizeName(name) {
+        return name
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[_-]+/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    const zoneByProvince = {
+        "nord kivu": "EST",
+        "sud kivu": "EST",
+        "ituri": "EST",
+        "maniema": "EST",
+        "bas uele": "NORD",
+        "haut uele": "NORD",
+        "tshopo": "NORD",
+        "kasai": "CENTRE",
+        "kasai central": "CENTRE",
+        "kasai oriental": "CENTRE",
+        "lomami": "CENTRE",
+        "sankuru": "CENTRE",
+        "kinshasa": "OUEST",
+        "kongo central": "OUEST",
+        "kwango": "OUEST",
+        "kwilu": "OUEST",
+        "mai ndombe": "OUEST",
+        "mongala": "OUEST",
+        "nord ubangi": "OUEST",
+        "sud ubangi": "OUEST",
+        "equateur": "OUEST",
+        "tshuapa": "OUEST",
+        "haut katanga": "SUD",
+        "lualaba": "SUD",
+        "haut lomami": "SUD",
+        "tanganyika": "SUD"
+    };
+
+    const zoneLayers = {};
+
+    function addZoneLayer(zoneName, features) {
+        if (!features.length) {
+            return;
+        }
+        const layer = L.geoJSON({ type: "FeatureCollection", features }, {
+            style: {
+                color: "#00ff88",
+                weight: 1.2,
+                fillOpacity: 0.12,
+                fillColor: "#00ff88",
+            },
+            onEachFeature: (feature, layerInstance) => {
+                layerInstance.on({
+                    click: () => {
+                        console.log("[MAP] clicked feature", zoneName, feature && feature.properties);
+                        evolutionPanelClosedByUser = false;
+                        openEvolutionPanel(zoneName);
+                    },
+                    mouseover: () => layerInstance.setStyle({ fillOpacity: 0.25, weight: 2 }),
+                    mouseout: () => layerInstance.setStyle({ fillOpacity: 0.12, weight: 1.2 }),
+                });
+            },
+        }).addTo(map);
+        zoneLayers[zoneName] = layer;
+        return layer;
+    }
+
+    Promise.all([
+        fetch(geojsonUrl).then((res) => res.json()),
+        fetch(provinceUrl).then((res) => res.json()),
+    ])
+        .then(([outlineGeo, provincesGeo]) => {
+            const outlineLayer = L.geoJSON(outlineGeo, {
+                style: {
+                    color: "#00ff88",
+                    weight: 2,
+                    fillOpacity: 0.15,
+                },
+            }).addTo(map);
+            map.fitBounds(outlineLayer.getBounds(), { padding: [10, 10] });
+
+            const zones = { EST: [], NORD: [], CENTRE: [], OUEST: [], SUD: [] };
+            let warned = false;
+            (provincesGeo.features || []).forEach((feature) => {
+                const props = feature.properties || {};
+                const name = props.NAME_1 || props.name || props.NAME || "";
+                const normalized = normalizeName(name);
+                const zone = zoneByProvince[normalized];
+                if (zone) {
+                    zones[zone].push(feature);
+                } else if (name && !warned) {
+                    console.warn("Unmapped province:", name);
+                    warned = true;
+                }
+            });
+
+            Object.keys(zones).forEach((zoneName) => {
+                addZoneLayer(zoneName, zones[zoneName]);
+            });
+        })
+        .catch(() => {});
+
+})();
+</script>
+{% endblock extra_js %}

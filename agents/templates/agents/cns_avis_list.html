@@ -1,0 +1,44 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h1 class="h3 mb-0">Avis CNS</h1>
+                <p class="mb-0">Historique r&eacute;cent</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'cns_dashboard' %}" class="btn btn-outline-light btn-sm">Retour CNS</a>
+                <a href="{% url 'cns_avis_create' %}" class="btn btn-light btn-sm">R&eacute;diger un avis</a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if avis_list %}
+                <div class="list-group">
+                    {% for avis in avis_list %}
+                    <div class="list-group-item">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div>
+                                <strong>{{ avis.title }}</strong>
+                                <div class="small text-muted">
+                                    {{ avis.created_at|date:"d/m/Y H:i" }} &middot; {{ avis.created_by.username|default:"N/A" }}
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary">{{ avis.get_urgency_display }}</span>
+                        </div>
+                        <p class="mt-2 mb-1">{{ avis.content|truncatechars:220 }}</p>
+                        {% if avis.recommendation %}
+                        <p class="mb-0 small text-muted">Recommandation: {{ avis.recommendation|truncatechars:180 }}</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">Aucun avis CNS r&eacute;cent.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

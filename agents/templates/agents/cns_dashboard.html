@@ -1,0 +1,66 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .cns-briefing-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 255, 160, 0.35);
+        background: rgba(0, 0, 0, 0.35);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        text-transform: uppercase;
+    }
+    .cns-briefing-btn:hover {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: rgba(0, 255, 160, 0.55);
+        color: #ffffff;
+        text-decoration: none;
+    }
+</style>
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <h1 class="h3 mb-0">CONSEIL NATIONAL DE S&Eacute;CURIT&Eacute; &mdash; MBONGI-CNS</h1>
+                    <p class="mb-0">Tableau strat&eacute;gique (V1)</p>
+                </div>
+                {% if is_cns %}
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="cns-briefing-btn" href="/agents/presidence/briefing/">BRIEFING PR&Eacute;SIDENCE</a>
+                    <a class="cns-briefing-btn" href="{% url 'cns_avis_create' %}">R&Eacute;DIGER UN AVIS CNS</a>
+                    <a class="cns-briefing-btn" href="{% url 'cns_avis_list' %}">VOIR AVIS CNS</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card mb-3">
+                <div class="card-header">Alertes prioritaires</div>
+                <div class="card-body">
+                    <p class="text-muted">Aucune alerte prioritaire pour le moment.</p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Contributions valid&eacute;es</div>
+                <div class="card-body">
+                    <p class="text-muted">Aucune contribution valid&eacute;e r&eacute;cente.</p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header">Avis CNS</div>
+                <div class="card-body">
+                    <p class="text-muted">Aucun avis CNS disponible.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

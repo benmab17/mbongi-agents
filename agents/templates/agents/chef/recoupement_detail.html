@@ -1,0 +1,83 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/chef_commandement.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="command-center-shell" style="padding: 2rem;">
+    <header class="cc-header">
+        <div class="cc-header-left">
+            <div class="cc-republic">RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</div>
+            <div class="cc-center-name">DÉTAIL RECOUPEMENT #{{ ticket.id }}</div>
+        </div>
+        <div class="cc-header-right">
+            <a href="{% url 'chef_commandement' %}" class="btn btn-sm btn-outline-info">Retour Commandement</a>
+        </div>
+    </header>
+
+    <main class="cc-main-grid" style="display: block;">
+        <section class="cc-panel">
+            <div class="cc-panel-title">Informations du Ticket</div>
+            <p><strong>Titre:</strong> {{ ticket.title }}</p>
+            <p><strong>Niveau:</strong> <span class="cc-signal-badge level-{{ ticket.level|lower }}">{{ ticket.level }}</span></p>
+            <p><strong>Statut:</strong> {{ ticket.get_status_display }}</p>
+            <p><strong>Évidence:</strong> {{ ticket.evidence }}</p>
+            <p><strong>Mots-clés:</strong> {{ ticket.keywords }}</p>
+            <p><strong>Créé le:</strong> {{ ticket.created_at|date:"d/m/Y H:i" }} par {{ ticket.created_by.username }}</p>
+            <p><strong>Échéance:</strong> {{ ticket.due_at|date:"d/m/Y H:i" }}
+            {% if ticket.is_overdue %}
+                <span class="badge overdue-badge level-{{ ticket.overdue_level|lower }}">EN RETARD ({{ ticket.overdue_hours }}h)</span>
+            {% endif %}
+            </p>
+            <p><strong>Agents assignés:</strong>
+                {% for agent in ticket.assigned_agents.all %}
+                    {{ agent.username }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Aucun
+                {% endfor %}
+            </p>
+            {% if ticket.overdue_level == 'ORANGE' or ticket.overdue_level == 'RED' %}
+            <div class="institutional-reminder">
+                <strong>Rappel institutionnel :</strong> Priorité renforcée. Recoupement attendu sans délai.
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="cc-panel mt-4">
+            <div class="cc-panel-title">Réponses des Agents</div>
+            {% for response in ticket.responses.all %}
+            <div class="recoupement-response">
+                <div class="response-header">
+                    <strong>{{ response.author.username }}</strong>
+                    <span class="text-muted">le {{ response.created_at|date:"d/m/Y H:i" }}</span>
+                    <span>(Confiance: {{ response.confidence }}/3)</span>
+                </div>
+                <div class="response-content">
+                    {{ response.content|linebreaks }}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">Aucune réponse pour le moment.</p>
+            {% endfor %}
+        </section>
+
+        <section class="cc-panel mt-4">
+            <div class="cc-panel-title">Actions</div>
+            {% if ticket.status != 'CLOSED' %}
+            <form action="{% url 'chef_close_recoupement' ticket.pk %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">Clôturer le ticket</button>
+            </form>
+            <form action="{% url 'chef_escalate_recoupement' ticket.pk %}" method="POST" style="display: inline; margin-left: 10px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Escalader en mission</button>
+            </form>
+            {% else %}
+            <p class="text-muted">Ce ticket est clôturé.</p>
+            {% endif %}
+        </section>
+    </main>
+</div>
+{% endblock %}

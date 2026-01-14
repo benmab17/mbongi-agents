@@ -1,0 +1,147 @@
+{% extends "accounts/base.html" %}
+{% block title %}Dashboard • MBONGI-AGENTS{% endblock %}
+
+{% if user.is_authenticated %}
+  <nav style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+    <a class="btn" href="{% url 'agent_dashboard' %}">Dashboard</a>
+    <a class="btn" href="{% url 'contribution_new' %}">Nouvelle contribution</a>
+    <a class="btn" href="{% url 'agent_profile' %}">Mon dossier</a>
+
+    {% if user.is_staff or user.groups.filter(name="CHEF_SERVICE").exists %}
+      <a class="btn" href="{% url 'team_view' %}">Vue Chef (Team)</a>
+    {% endif %}
+
+    <form method="post" action="{% url 'logout' %}" style="display:inline;">
+      {% csrf_token %}
+      <button class="btn" type="submit">Déconnexion</button>
+    </form>
+  </nav>
+{% endif %}
+
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <div class="card-title">
+      <i data-feather="activity"></i>
+      Tableau de bord
+    </div>
+    <div class="card-subtitle">Vue personnelle • Utilité • Discipline • Contribution</div>
+  </div>
+
+  <div class="card-body">
+    {% if agent %}
+      <p style="margin-top:0;">
+        Bienvenue <strong>{{ agent.prenom }} {{ agent.nom }}</strong>
+        — <span style="color:var(--muted);">Matricule : {{ agent.matricule }}</span>
+      </p>
+
+      <div class="kpis" style="margin-top:14px;">
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="file-text"></i>
+            Contributions
+          </div>
+          <div class="value">{{ stats.total }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="check-circle"></i>
+            Validées
+          </div>
+          <div class="value">{{ stats.validated }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="calendar"></i>
+            Cette semaine
+          </div>
+          <div class="value">{{ stats.week }}</div>
+        </div>
+      </div>
+
+      <div class="kpis" style="margin-top:12px;">
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="edit-3"></i>
+            Brouillons
+          </div>
+          <div class="value">{{ stats.draft }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="send"></i>
+            Soumis
+          </div>
+          <div class="value">{{ stats.submitted }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">
+            <i data-feather="shield"></i>
+            Service
+          </div>
+          <div class="value">{{ agent.service.nom }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn btn-primary" href="/admin/agents/contribution/add/">
+          <i data-feather="plus-circle"></i>
+          Nouvelle contribution
+        </a>
+
+        <a class="btn" href="/admin/agents/contribution/?q={{ agent.matricule }}">
+          <i data-feather="list"></i>
+          Mes contributions
+        </a>
+
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button class="btn" type="submit">
+            <i data-feather="log-out"></i>
+            Déconnexion
+          </button>
+        </form>
+      </div>
+
+      <div style="margin-top:18px; padding:14px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.05);">
+        <div style="font-weight:800;">
+          <i data-feather="info"></i>
+          Message institutionnel
+        </div>
+        <div style="color:var(--muted); margin-top:6px;">
+          Nous priorisons la qualité : une contribution claire et structurée vaut plus que dix messages.
+          Chaque action est traçable et valorisée.
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div style="font-weight:800; margin-bottom:10px;">
+          <i data-feather="clock"></i>
+          Dernières contributions
+        </div>
+
+        {% if last_items %}
+          <div style="display:grid; gap:10px;">
+            {% for c in last_items %}
+              <div style="padding:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.05);">
+                <div style="font-weight:800;">{{ c.titre }}</div>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">
+                  Statut : {{ c.get_statut_display }} • Priorité : {{ c.priorite }} • {{ c.date_creation|date:"d/m/Y H:i" }}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert">Nous n’avons encore aucune contribution enregistrée pour ce profil.</div>
+        {% endif %}
+      </div>
+
+    {% else %}
+      <div class="alert">
+        Aucun profil agent n’est lié à ce compte.
+        Demande à l’administrateur de te lier à un Agent.
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

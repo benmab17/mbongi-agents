@@ -1,0 +1,613 @@
+{% load static %}
+{% with agent=agent|default:request.user.agent %}
+
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DOSSIER AGENT // CLASSIFI&Eacute;</title>
+
+    <link rel="stylesheet" href="{% static 'accounts/agent_dossier.css' %}">
+
+</head>
+
+<body>
+
+
+
+    <div class="terminal-container">
+
+        <!-- BANDEAU SUP&Eacute;RIEUR -->
+
+        <header class="top-banner">
+
+            <div class="banner-title">
+
+                <span class="title-main">{{ current_service }}</span>
+
+                <span class="title-sub">SYST&Egrave;ME D'INFORMATION S&Eacute;CURIS&Eacute; // RDC</span>
+
+            </div>
+
+            <div class="banner-status">
+
+                <span class="status-light"></span>
+
+                <span class="status-text" data-text="ACC&Egrave;S AUTORIS&Eacute;">ACC&Egrave;S AUTORIS&Eacute;</span>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- GRILLE PRINCIPALE -->
+
+        <main class="main-grid">
+
+
+
+            <!-- COLONNE GAUCHE -->
+
+            <section class="grid-column column-left">
+
+                <div class="info-module photo-module">
+
+                    <div class="module-header">IDENTIFICATION VISUELLE</div>
+
+                    <div class="anr-photo-frame">
+
+                        {% if agent.photo %}
+
+                            <img src="{{ agent.photo.url }}" alt="Photo de l'agent {{ agent.nom }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+
+                        {% else %}
+
+                            <div class="initials-placeholder">{{ agent.prenom|first }}{{ agent.nom|first }}</div>
+
+                        {% endif %}
+
+                        <div class="scan-line"></div>
+
+                    </div>
+
+                    <div class="anr-access-granted">ACC&Egrave;S AUTORIS&Eacute;</div>
+
+                    <a href="{% url 'agent_photo_upload' %}" style="display: inline-block; padding: 4px 8px; border: 1px solid rgba(0, 255, 170, 0.35); background: rgba(0, 255, 170, 0.08); color: #e6fff6; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; text-decoration: none; line-height: 1; box-shadow: none; text-shadow: none;">Mettre &agrave; jour la photo</a>
+                </div>
+
+                <div class="info-module bio-module">
+
+                    <div class="module-header">BIOM&Eacute;TRIE</div>
+
+                    <p>RYTHME CARDIAQUE: <span id="bio-heart-rate">--</span> BPM</p>
+
+                    <p>SIGNATURE THERMIQUE: <span id="bio-temp">--</span> &deg;C</p>
+
+                    <p>ADN ID: <span class="text-flicker">CONFORME</span></p>
+
+                </div>
+
+                <div class="info-module access-module">
+
+                    <div class="module-header">NIVEAU D'ACC&Egrave;S</div>
+
+                    <div class="access-level level-secret-defense">SECRET D&Eacute;FENSE</div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- COLONNE CENTRALE -->
+
+            <section class="grid-column column-center">
+
+                <div class="info-module identity-module">
+
+                    <h1 class="agent-name" id="agent-name-typewriter">{{ agent.nom }} {{ agent.prenom }}</h1>
+
+                    <div class="identity-details">
+
+                        <p><span>MATRICULE:</span> {{ agent.matricule }}</p>
+
+                        <p><span>FONCTION:</span> {{ agent.fonction }}</p>
+
+                        <p><span>UNIT&Eacute;:</span> {{ agent.unite|default:agent.service.nom }}</p>
+
+                        <p><span>AFFECTATION:</span> {{ agent.affectation|default:"NON SP&Eacute;CIFI&Eacute;E" }}</p>
+
+                    </div>
+
+                </div>
+
+                <div class="anr-panel">
+
+                  <div class="anr-panel-title">CARTE OP&Eacute;RATIONNELLE</div>
+
+
+
+                  <div class="anr-map-wrap">
+
+                    <div class="anr-map-grid"></div>
+
+
+
+                    <svg class="anr-map" viewBox="0 0 900 620" aria-label="Carte RDC">
+
+                      <path class="map-outline"
+
+                        d="M152,120 L240,80 L360,90 L430,70 L520,120 L620,105 L710,150
+
+                           L760,240 L730,330 L790,420 L700,500 L600,520 L520,560
+
+                           L430,540 L350,580 L260,520 L220,430 L160,380 L120,300 L140,200 Z" />
+
+
+
+                      <g class="map-dots">
+
+                        <circle cx="520" cy="255" r="6" class="dot a"/>
+
+                        <circle cx="460" cy="310" r="5" class="dot b"/>
+
+                        <circle cx="610" cy="360" r="5" class="dot c"/>
+
+                        <circle cx="360" cy="260" r="4" class="dot d"/>
+
+                        <circle cx="300" cy="360" r="4" class="dot e"/>
+
+                      </g>
+
+
+
+                      <g class="map-links">
+
+                        <line x1="520" y1="255" x2="460" y2="310" />
+
+                        <line x1="460" y1="310" x2="610" y2="360" />
+
+                        <line x1="460" y1="310" x2="360" y2="260" />
+
+                        <line x1="360" y1="260" x2="300" y2="360" />
+
+                      </g>
+
+
+
+                      <circle cx="460" cy="310" r="46" class="pulse"/>
+
+                    </svg>
+
+
+
+                    <div class="anr-map-caption">
+
+                      <span class="tag">ZONE</span>
+
+                      <span>{{ agent.zone_operation|default:"RDC / R&Eacute;GION CENTRE" }}</span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {# --- New Console A8 Button --- #}
+
+                <div class="info-module console-a8-module">
+
+                    <div class="module-header">ACC&Egrave;S DIRECT</div>
+
+                    <a href="{% url 'agent_console' %}" class="btn btn-console-a8">
+
+                        CONSOLE AGENT ACTIVE (A8)
+
+                    </a>
+
+                    <a href="{% url 'shared_contributions' %}" class="btn btn-console-a8">
+
+                        CONTRIBUTIONS PARTAG&Eacute;ES
+
+                    </a>
+                    {% if agent and agent.service.nom == "DGM" %}
+                        <!-- DGM RENSEIGNEMENT LINK -->
+                        <a href="{% url 'dgm_renseignement' %}" class="btn btn-console-a8">
+                            DGM &mdash; Renseignement
+                        </a>
+                        <a href="{% url 'dgm_surveillance' %}" class="btn btn-console-a8">
+                            DGM &mdash; Profil &agrave; surveiller
+                        </a>
+                    {% endif %}
+                    {% if is_chef_service %}
+                        <a href="{% url 'chef_create_micro_mission' %}" class="btn btn-console-a8">
+                            Chef &mdash; Cr&eacute;er micro-mission
+                        </a>
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+
+
+            <!-- COLONNE DROITE -->
+
+            <section class="grid-column column-right">
+
+                <div class="info-module skills-module">
+
+                    <div class="module-header">SP&Eacute;CIALIT&Eacute;S ENREGISTR&Eacute;ES</div>
+
+                    <ul>
+
+                        {% if agent.specialites %}
+
+                            {% for speciality in agent.specialites %}
+
+                                <li>{{ speciality }}</li>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <li>Non sp&eacute;cifi&eacute;es</li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+                <div class="info-module log-module">
+
+                    <div class="module-header">JOURNAL DE CONNEXION</div>
+
+                    <p>ZONE OP: {{ agent.zone_operation|default:"Non sp&eacute;cifi&eacute;e" }}</p>
+
+                    <p>DERNIER SIGNAL: <span id="log-time">--:--:--</span></p>
+
+                </div>
+
+                 <div class="info-module stats-module">
+
+                    <div class="module-header">STATISTIQUES CONTRIBUTIONS</div>
+
+                    <p><span>TOTAL:</span> {{ stats.total }}</p>
+
+                    <p><span>VALID&Eacute;ES:</span> {{ stats.validated }}</p>
+
+                    <p><span>SOUMISES:</span> {{ stats.submitted }}</p>
+
+                    <p><span>BROUILLONS:</span> {{ stats.draft }}</p>
+
+                </div>
+
+                <div class="info-module score-module">
+
+                    <div class="module-header">Score de fiabilit&eacute;</div>
+
+                    <div class="score-display">
+
+                        <span class="score-badge 
+
+                            {% if score >= 80 %}score-high{% elif score >= 50 %}score-medium{% else %}score-low{% endif %}">
+
+                            {{ score }}/100
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="info-module last-contributions-module">
+
+                    <div class="module-header">DERNI&Egrave;RES CONTRIBUTIONS</div>
+
+                    <ul>
+
+                        {% for c in last %}
+
+                            <li class="c-item">
+
+                                {% if c.statut == "VALIDATED" %}
+
+                                    <span class="c-status is-valid">VALID&Eacute;E</span>
+
+                                {% elif c.statut == "SUBMITTED" %}
+
+                                    <span class="c-status is-sub">SOUMISE</span>
+
+                                {% elif c.statut == "DRAFT" %}
+
+                                    <span class="c-status is-draft">BROUILLON</span>
+
+                                {% else %}
+
+                                    <span class="c-status">{{ c.statut }}</span>
+
+                                {% endif %}
+
+                                <span class="c-title">{{ c.titre }}</span>
+
+                                <span class="c-meta">P{{ c.priorite }} {{ c.date_creation|date:"d/m/Y H:i" }}</span>
+
+                                {% if c.statut == "REJECTED" and c.decision_note %}
+
+                                <div class="c-rejection-note">
+
+                                    <strong>Motif du refus :</strong> {{ c.decision_note }}
+
+                                </div>
+
+                                {% endif %}
+
+                                {% if c.statut == "VALIDATED" %}
+
+                                    <!-- PARTAGE V1 -->
+
+                                    <a href="{% url 'share_contribution' c.id %}" class="btn btn-sm btn-outline-success mt-1" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #ffffff; background: rgba(0, 255, 170, 0.18); border: 1px solid rgba(0, 255, 170, 0.45); text-decoration: none; line-height: 1;">Partager</a>
+
+                                {% endif %}
+
+                            </li>
+
+                        {% empty %}
+
+                            <li>Aucune contribution r&eacute;cente.</li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- COLONNE DROITE -->
+
+            <section class="grid-column column-right">
+
+                <div class="info-module skills-module">
+
+                    <div class="module-header">SP&Eacute;CIALIT&Eacute;S ENREGISTR&Eacute;ES</div>
+
+                    <ul>
+
+                        {% if agent.specialites %}
+
+                            {% for speciality in agent.specialites %}
+
+                                <li>{{ speciality }}</li>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <li>Non sp&eacute;cifi&eacute;es</li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+                <div class="info-module log-module">
+
+                    <div class="module-header">JOURNAL DE CONNEXION</div>
+
+                    <p>ZONE OP: {{ agent.zone_operation|default:"Non sp&eacute;cifi&eacute;e" }}</p>
+
+                    <p>DERNIER SIGNAL: <span id="log-time">--:--:--</span></p>
+
+                </div>
+
+                 <div class="info-module stats-module">
+
+                    <div class="module-header">STATISTIQUES CONTRIBUTIONS</div>
+
+                    <p><span>TOTAL:</span> {{ stats.total }}</p>
+
+                    <p><span>VALID&Eacute;ES:</span> {{ stats.validated }}</p>
+
+                    <p><span>SOUMISES:</span> {{ stats.submitted }}</p>
+
+                    <p><span>BROUILLONS:</span> {{ stats.draft }}</p>
+
+                </div>
+
+                <div class="info-module score-module">
+
+                    <div class="module-header">Score de fiabilit&eacute;</div>
+
+                    <div class="score-display">
+
+                        <span class="score-badge 
+
+                            {% if score >= 80 %}score-high{% elif score >= 50 %}score-medium{% else %}score-low{% endif %}">
+
+                            {{ score }}/100
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="info-module last-contributions-module">
+
+                    <div class="module-header">DERNI&Egrave;RES CONTRIBUTIONS</div>
+
+                    <ul>
+
+                        {% for c in last %}
+
+                            <li class="c-item">
+
+                                {% if c.statut == "VALIDATED" %}
+
+                                    <span class="c-status is-valid">VALID&Eacute;E</span>
+
+                                {% elif c.statut == "SUBMITTED" %}
+
+                                    <span class="c-status is-sub">SOUMISE</span>
+
+                                {% elif c.statut == "DRAFT" %}
+
+                                    <span class="c-status is-draft">BROUILLON</span>
+
+                                {% else %}
+
+                                    <span class="c-status">{{ c.statut }}</span>
+
+                                {% endif %}
+
+                                <span class="c-title">{{ c.titre }}</span>
+
+                                <span class="c-meta">P{{ c.priorite }} {{ c.date_creation|date:"d/m/Y H:i" }}</span>
+
+                                {% if c.statut == "REJECTED" and c.decision_note %}
+
+                                <div class="c-rejection-note">
+
+                                    <strong>Motif du refus :</strong> {{ c.decision_note }}
+
+                                </div>
+
+                                {% endif %}
+
+                                {% if c.statut == "VALIDATED" %}
+
+                                    <!-- PARTAGE V1 -->
+
+                                    <a href="{% url 'share_contribution' c.id %}" class="btn btn-sm btn-outline-success mt-1" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #ffffff; background: rgba(0, 255, 170, 0.18); border: 1px solid rgba(0, 255, 170, 0.45); text-decoration: none; line-height: 1;">Partager</a>
+
+                                {% endif %}
+
+                            </li>
+
+                        {% empty %}
+
+                            <li>Aucune contribution r&eacute;cente.</li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+                <div class="info-module missions-module">
+
+                    <div class="module-header">MISSIONS ASSIGN&Eacute;ES</div>
+
+                    <ul>
+
+                        {% for mission in missions %}
+
+                            <li class="c-item">
+
+                                <span class="c-status is-{{ mission.status|lower }}">{{ mission.get_status_display }}</span>
+
+                                <span class="c-title"><a href="{% url 'mission_detail' mission.pk %}">{{ mission.titre }}</a></span>
+
+                                <span class="c-meta">P{{ mission.priority }} | Limite: {{ mission.due_date|date:"d/m/Y"|default:"N/A" }}</span>
+
+                            </li>
+
+                        {% empty %}
+
+                            <li>Aucune mission assign&eacute;e.</li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+
+
+        </main>
+
+
+
+        <!-- BANDEAU INF&Eacute;RIEUR -->
+
+        <footer class="bottom-banner">
+
+            <p data-text="PROTOCOLE DE SURVEILLANCE ACTIF">PROTOCOLE DE SURVEILLANCE ACTIF</p>
+
+        </footer>
+
+    </div>
+
+    
+
+    <script src="{% static 'accounts/agent_dossier.js' %}"></script>
+
+                <div class="info-module missions-module">
+
+                    <div class="module-header">MISSIONS ASSIGN&Eacute;ES</div>
+
+                    <ul>
+
+                        {% for mission in missions %}
+
+                            <li class="c-item">
+
+                                <span class="c-status is-{{ mission.status|lower }}">{{ mission.get_status_display }}</span>
+
+                                <span class="c-title"><a href="{% url 'mission_detail' mission.pk %}">{{ mission.titre }}</a></span>
+
+                                <span class="c-meta">P{{ mission.priority }} | Limite: {{ mission.due_date|date:"d/m/Y"|default:"N/A" }}</span>
+
+                            </li>
+
+                        {% empty %}
+
+                            <li>Aucune mission assign&eacute;e.</li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+
+
+        </main>
+
+
+
+        <!-- BANDEAU INF&Eacute;RIEUR -->
+
+        <footer class="bottom-banner">
+
+            <p data-text="PROTOCOLE DE SURVEILLANCE ACTIF">PROTOCOLE DE SURVEILLANCE ACTIF</p>
+
+        </footer>
+
+    </div>
+
+
+
+    <script src="{% static 'accounts/agent_dossier.js' %}"></script>
+
+</body>
+
+</html>
+{% endwith %}
+

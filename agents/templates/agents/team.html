@@ -1,0 +1,219 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load agents_extras %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'agents/team.css' %}">
+
+
+<div class="team-shell">
+
+  <header class="team-top">
+    <div class="brand">
+      <div class="title">MBONGI-AGENTS</div>
+      <div class="subtitle">Vue Chef de service • Supervision • Traçabilité</div>
+    </div>
+    
+    {% if is_chef %}
+    <div style="display:flex;justify-content:center;width:100%;">
+    <div class="audit-btn-area" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+        <a href="{% url 'audit_log' %}" class="btn btn-primary">Journal d'Audit</a>
+        <a href="{% url 'decision_list' %}" class="btn btn-primary">DÉCISIONS</a>
+        <a href="{% url 'chef_commandement' %}" class="btn btn-primary">COMMANDEMENT</a>
+        <a href="{% url 'mission_create' %}" class="btn btn-primary">+ Nouvelle mission</a>
+        {% if request.user.is_staff or is_presidence %}
+        <a href="{% url 'presidence_briefing' %}" class="btn btn-primary">BRIEFING PRÉSIDENCE</a>
+        {% endif %}
+    </div>
+    </div>
+    {% endif %}
+    
+  </header>
+
+  <div class="team-grid">
+
+    <!-- LEFT: liste agents -->
+    <aside class="panel left">
+      <div class="panel-head">
+        <div class="panel-title">TEAM</div>
+        <div class="panel-sub">Service : {{ me.service }}</div>
+      </div>
+
+      <div class="agent-list">
+        {% for a in agents_list %}
+          <a class="agent-item {% if selected and a.id == selected.id %}active{% endif %}"
+             href="?a={{ a.id }}">
+            <div class="avatar">
+              {% if a.photo %}
+                <img src="{{ a.photo.url }}" alt="photo">
+              {% else %}
+                <span>•</span>
+              {% endif %}
+            </div>
+
+            <div class="meta">
+              <div class="name">{{ a.nom }} {{ a.prenom }}</div>
+              <div class="role">{{ a.fonction|default:"Agent" }} • {{ a.unite|default:"Unité" }}</div>
+              <div class="line">
+                <span class="pill">{{ a.service }}</span>
+                <span class="mini">Mat: {{ a.matricule }}</span>
+              </div>
+            </div>
+
+            <div class="kpis">
+              <div class="kpi">
+                <div class="kpi-label">Contrib.</div>
+                <div class="kpi-val">{{ a.contributions.count }}</div>
+              </div>
+              {% with score=scores_map|get_item:a.id %}
+              <div class="kpi">
+                <div class="kpi-label">Score</div>
+                <div class="kpi-val score-badge 
+                    {% if score >= 80 %}score-high{% elif score >= 50 %}score-medium{% else %}score-low{% endif %}">
+                    {{ score }}
+                </div>
+              </div>
+              {% endwith %}
+            </div>
+          </a>
+        {% empty %}
+          <div class="empty">Aucun agent dans ce service.</div>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <!-- CENTER: dossier agent -->
+    <main class="panel center">
+      {% if selected %}
+        <div class="card big">
+          <div class="card-top">
+            <div class="who">
+              <div class="who-name">{{ selected.nom|upper }} {{ selected.prenom|upper }}</div>
+              <div class="who-sub">
+                Matricule : <b>{{ selected.matricule }}</b> • Service : <b>{{ selected.service }}</b>
+              </div>
+            </div>
+
+            <div class="actions">
+              <a class="btn" href="{% url 'agent_profile' %}?a={{ selected.id }}">Voir dossier</a>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="idgrid">
+              <div class="idbox"><span>Unité</span><b>{{ selected.unite|default:"—" }}</b></div>
+              <div class="idbox"><span>Fonction</span><b>{{ selected.fonction|default:"—" }}</b></div>
+              <div class="idbox"><span>Statut</span><b>{% if selected.actif %}ACTIF{% else %}INACTIF{% endif %}</b></div>
+              <div class="idbox"><span>Habilitation</span><b>NIVEAU {{ selected.niveau_habilitation|default:"3" }}</b></div>
+            </div>
+
+            <div class="stats">
+              <div class="stat"><span>Total</span><b>{{ selected_stats.total|default:"0" }}</b></div>
+              <div class="stat"><span>Validées</span><b>{{ selected_stats.validated|default:"0" }}</b></div>
+              <div class="stat"><span>Soumises</span><b>{{ selected_stats.submitted|default:"0" }}</b></div>
+              <div class="stat"><span>Brouillons</span><b>{{ selected_stats.draft|default:"0" }}</b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Dernières contributions</div>
+
+          {% if last %}
+            <ul class="last">
+              {% for c in last %}
+                <li>
+                  <div class="t">{{ c.titre }}</div>
+
+                  <div class="m">
+                    <span class="tag">{{ c.statut }}</span>
+                    <span class="d">{{ c.date_creation|date:"d/m/Y H:i" }}</span>
+                  </div>
+
+                  <div class="quick-validation-form">
+                    <form method="post" action="{% url 'contribution_decide' c.id %}" class="decide">
+                        {% csrf_token %}
+                        <input type="text" name="note" placeholder="Motif (si refus)" class="note">
+                        <button class="btn small" name="action" value="validate">Valider</button>
+                        <button class="btn small danger" name="action" value="reject">Refuser</button>
+                    </form>
+                    {% if c.decision_note %}
+                        <div class="muted decision-note">
+                            {% if c.statut == "REJECTED" %}
+                                <strong>Motif du refus :</strong>
+                            {% else %}
+                                <strong>Note :</strong>
+                            {% endif %}
+                            {{ c.decision_note }}
+                            <span class="by">par {{ c.validated_by.username }} le {{ c.validated_at|date:"d/m/y" }}</span>
+                        </div>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="empty">Aucune contribution pour cet agent.</div>
+          {% endif %}
+        </div>
+
+      {% else %}
+        <div class="card">
+          <div class="empty">Aucun agent sélectionné.</div>
+        </div>
+      {% endif %}
+    </main>
+
+    <!-- RIGHT: activité / panneau -->
+    <aside class="panel right">
+      <div class="panel-head">
+        <div class="panel-title">ACTIVITÉ</div>
+        <div class="panel-sub">Lecture hiérarchique</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Rappel institutionnel</div>
+        <div class="muted">
+          Une contribution claire et structurée vaut plus que dix messages. Toute action est traçable.
+        </div>
+      </div>
+
+      <div class="card" id="next-steps-card">
+        <div class="card-title">Prochaines étapes</div>
+        <ul class="todo">
+          <li>Filtre “chef” (groupe / rôle)</li>
+          <li>Recherche / tri des agents</li>
+          <li>Validation contributions (workflow)</li>
+          <li>Score agent (discipline/qualité)</li>
+        </ul>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.decide').forEach(form => {
+        const rejectButton = form.querySelector('button[value="reject"]');
+        if (rejectButton) {
+            form.addEventListener('submit', function(event) {
+                // Vérifie si le bouton cliqué est bien "Refuser"
+                if (document.activeElement !== rejectButton) {
+                    return;
+                }
+                const noteInput = form.querySelector('input[name="note"]');
+                const reason = prompt("Veuillez entrer le motif du refus :", noteInput.value || "");
+                if (reason === null || reason.trim() === "") {
+                    event.preventDefault(); // Bloque la soumission
+                    alert("Le motif du refus est obligatoire.");
+                } else {
+                    noteInput.value = reason; // Met à jour le champ avec le motif
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

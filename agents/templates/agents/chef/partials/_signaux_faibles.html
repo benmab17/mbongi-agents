@@ -1,0 +1,25 @@
+<div class="cc-weak-signals-list">
+    {% for signal in weak_signals %}
+        {% if signal.level != 'GREEN' %}
+        <div class="cc-weak-signal">
+            <div class="signal-info">
+                <span class="cc-signal-badge level-{{ signal.level|lower }}">{{ signal.level }}</span>
+                <strong class="signal-title">{{ signal.title }}</strong>
+                <span class="signal-evidence">({{ signal.evidence }})</span>
+            </div>
+            <div class="signal-action">
+                <form action="{% url 'chef_create_recoupement' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="level" value="{{ signal.level }}">
+                    <input type="hidden" name="title" value="{{ signal.title }}">
+                    <input type="hidden" name="evidence" value="{{ signal.evidence }}">
+                    <input type="hidden" name="keywords" value="{{ signal.keywords|join:', ' }}">
+                    <button type="submit" class="btn btn-sm btn-outline-warning">Ouvrir recoupement</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-muted">Aucun signal faible notable détecté sur les 72 dernières heures.</p>
+    {% endfor %}
+</div>

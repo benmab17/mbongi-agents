@@ -1,0 +1,40 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="card-title mb-0">REVUE CONTRIBUTION : {{ contribution.titre }}</h1>
+            <p class="card-subtitle mt-1">
+                Agent : {{ contribution.agent.nom }} {{ contribution.agent.prenom }} |
+                Date : {{ contribution.date_creation|date:"d/m/Y H:i" }} |
+                Statut : {{ contribution.get_statut_display }} |
+                Priorité : P{{ contribution.priorite }}
+            </p>
+        </div>
+        <div class="card-body">
+            <h3 class="mb-3">{{ contribution.titre }}</h3>
+            <div class="contribution-content mb-4">
+                {{ contribution.contenu|linebreaks }}
+            </div>
+            <hr>
+
+            <form method="post" action="{% url 'contribution_decide' contribution.pk %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="note" class="form-label">Note / Motif (si refus)</label>
+                    <textarea name="note" id="note" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <button type="submit" name="action" value="reject" class="btn btn-danger">Refuser</button>
+                    <button type="submit" name="action" value="validate" class="btn btn-primary">Valider</button>
+                </div>
+            </form>
+        </div>
+        <div class="card-footer text-end">
+            <a href="{% url 'chef_commandement' %}" class="btn btn-link">Retour au Commandement Chef</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

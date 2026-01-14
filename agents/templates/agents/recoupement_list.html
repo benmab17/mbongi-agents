@@ -1,0 +1,51 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mes Tickets de Recoupement</h2>
+    <p>Liste des tickets qui vous sont assignés et qui sont en attente d'une réponse.</p>
+    <hr>
+    
+    {% if recoupement_tickets %}
+        <div class="list-group">
+        {% for ticket in recoupement_tickets %}
+            <div class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ ticket.title }}</h5>
+                    <small>Échéance: {{ ticket.due_at|date:"d/m/Y H:i" }}</small>
+                </div>
+                <p class="mb-1"><strong>Évidence:</strong> {{ ticket.evidence }}</p>
+                <small>
+                    <strong>Niveau:</strong> <span class="badge bg-{{ ticket.level|lower }}">{{ ticket.level }}</span> | 
+                    <strong>Statut:</strong> {{ ticket.get_status_display }}
+                    {% if ticket.is_overdue %}
+                        | <span class="badge bg-danger">Retard: {{ ticket.overdue_hours }}h</span>
+                    {% endif %}
+                </small>
+                <div class="mt-2">
+                    {% if ticket.overdue_level == 'ORANGE' or ticket.overdue_level == 'RED' %}
+                        <span class="badge bg-danger">URGENT</span>
+                    {% endif %}
+                    <a href="{% url 'agent_reply_recoupement' ticket.pk %}" class="btn btn-primary">Répondre</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Vous n'avez aucun ticket de recoupement actif assigné.
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{% url 'agent_profile' %}" class="btn btn-secondary">Retour au dossier</a>
+    </div>
+</div>
+
+<style>
+.bg-yellow { background-color: #ffc107; }
+.bg-orange { background-color: #fd7e14; }
+.bg-red { background-color: #dc3545; }
+</style>
+{% endblock %}

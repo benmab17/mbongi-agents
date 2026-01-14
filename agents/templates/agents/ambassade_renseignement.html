@@ -1,0 +1,41 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Ambassade &mdash; Signalement diplomatique</h1>
+            <p class="mb-0">Signalement sensible (V1)</p>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.report_type.id_for_label }}" class="form-label">Type de signalement</label>
+                    {{ form.report_type }}
+                    {{ form.report_type.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.country_city.id_for_label }}" class="form-label">Pays / Ville</label>
+                    {{ form.country_city }}
+                    {{ form.country_city.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.urgency.id_for_label }}" class="form-label">Urgence</label>
+                    {{ form.urgency }}
+                    {{ form.urgency.errors }}
+                </div>
+                {{ form.non_field_errors }}
+                <button type="submit" class="btn btn-primary">TRANSMETTRE</button>
+                <a href="{% url 'agent_profile' %}" class="btn btn-secondary">Retour</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

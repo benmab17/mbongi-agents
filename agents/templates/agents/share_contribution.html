@@ -1,0 +1,32 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Partager la contribution</h1>
+        </div>
+        <div class="card-body">
+            <p class="mb-3">Contribution #{{ contribution.id }} - {{ contribution.titre }}</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="service_destinataire" class="form-label">Service destinataire</label>
+                    <select id="service_destinataire" name="service_destinataire" class="form-select">
+                        {% for service in services %}
+                            <option value="{{ service.id }}">{{ service.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="motif" class="form-label">Motif</label>
+                    <textarea id="motif" name="motif" class="form-control" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Partager</button>
+                <a href="{{ back_url }}" class="btn btn-link">Retour</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+import os
+import google.generativeai as genai
+
+# ⚠️ Assure-toi que ta clé API est déjà dans l'environnement
+# setx GOOGLE_API_KEY "ta_cle"
+
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
+
+model = genai.GenerativeModel("gemini-pro")
+
+PROMPT = """
+RÔLE: Assistant Django très prudent.
+
+RÈGLES STRICTES :
+- Interdiction totale d’écraser, supprimer ou modifier un fichier existant.
+- Interdiction d’écrire du code à ce stade.
+- Tu dois uniquement ANALYSER et RÉSUMER.
+- Si tu as besoin de contenu de fichiers, demande-les clairement (chemins précis).
+
+CONTEXTE PROJET :
+Projet Django: MBONGI-AGENTS
+Apps: accounts (login + dashboard agent), agents (contributions + Gemini résumé).
+Un agent ne passe jamais par /admin/. Admin = staff.
+
+TÂCHE (READ-ONLY) :
+1) Propose une check-list de 10 points pour vérifier l’état actuel du projet (routes, sécurité, templates, modèles, IA).
+2) Donne la liste exacte des fichiers que tu veux lire (max 12 fichiers), classés par priorité, pour comprendre le projet.
+3) Pour chaque fichier demandé, explique en 1 ligne pourquoi il est nécessaire.
+4) Termine par: "COLLE-MOI LE CONTENU DES FICHIERS 1 À 3".
+"""
+
+response = model.generate_content(PROMPT)
+
+print("\n===== RÉPONSE GEMINI =====\n")
+print(response.text)

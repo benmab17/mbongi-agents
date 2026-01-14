@@ -1,0 +1,56 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/chef_commandement.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="command-center-shell">
+    <header class="cc-header">
+        <div class="cc-header-left">
+            <div class="cc-republic">RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</div>
+            <div class="cc-center-name">MBONGI-INTEL — VUE COMMANDEMENT CHEF</div>
+        </div>
+        <div class="cc-header-right">
+            <div class="cc-last-update">DERNIÈRE MISE À JOUR : {{ last_update|date:"d/m/Y H:i:s" }}</div>
+        </div>
+    </header>
+
+    <main class="cc-main-grid">
+        <section class="cc-panel cc-kpis-commandement-panel">
+            <div class="cc-panel-title">TABLEAU TACTIQUE</div>
+            {% include 'agents/chef/partials/_kpis_commandement.html' %}
+        </section>
+
+        <section class="cc-panel cc-priority-missions-panel">
+            <div class="cc-panel-title">MISSIONS PRIORITAIRES</div>
+            {% include 'agents/chef/partials/_missions_prioritaires.html' %}
+        </section>
+
+        <section class="cc-panel cc-validation-queue-panel">
+            <div class="cc-panel-title">FILE DE VALIDATION CONTRIBUTIONS</div>
+            {% include 'agents/chef/partials/_validation_file.html' %}
+        </section>
+
+        <section class="cc-panel cc-command-journal-panel">
+            <div class="cc-panel-title">JOURNAL DE COMMANDEMENT</div>
+            {% include 'agents/chef/partials/_journal_commandement.html' %}
+        </section>
+
+        <section class="cc-panel cc-weak-signals-panel">
+            <div class="cc-panel-title">SIGNAUX FAIBLES (72H)</div>
+            {% include 'agents/chef/partials/_signaux_faibles.html' %}
+        </section>
+
+        <section class="cc-panel cc-recoupement-queue-panel">
+            <div class="cc-panel-title">FILE DE RECOUPEMENT</div>
+            {% include 'agents/chef/partials/_recoupement_file.html' %}
+        </section>
+    </main>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{# Aucun JS spécifique pour le moment #}
+{% endblock extra_js %}

@@ -1,0 +1,15 @@
+<ul class="cc-mission-list">
+    {% for mission in priority_missions %}
+    <li>
+        <span class="cc-mission-priority priority-{{ mission.priority }}">{{ mission.get_priority_display }}</span>
+        <span class="cc-mission-title"><a href="{% url 'mission_detail' mission.pk %}">{{ mission.titre }}</a></span>
+        <span class="cc-mission-agent">{{ mission.agent_assigned.nom }}</span>
+        <span class="cc-mission-status status-{{ mission.status|lower }}">{{ mission.get_status_display }}</span>
+        {% if mission.due_date %}
+            <span class="cc-mission-due-date">Limite: {{ mission.due_date|date:"d/m/Y" }}</span>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>Aucune mission prioritaire.</li>
+    {% endfor %}
+</ul>

@@ -1,0 +1,148 @@
+{% extends "accounts/base.html" %}
+{% block title %}Dashboard • MBONGI-AGENTS{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <div class="card-title">Tableau de bord</div>
+    <div class="card-subtitle">Vue personnelle • Utilité • Discipline • Contribution</div>
+  </div>
+
+  <div class="card-body">
+    {% if agent %}
+      <p style="margin-top:0;">
+        Bienvenue <strong>{{ agent.prenom }} {{ agent.nom }}</strong>
+        — <span style="color:var(--muted);">Matricule : {{ agent.matricule }}</span>
+      </p>
+
+      <div class="kpis" style="margin-top:14px;">
+        <div class="kpi">
+          <div class="label">Contributions</div>
+          <div class="value">{{ stats.total }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Validées</div>
+          <div class="value">{{ stats.validated }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Cette semaine</div>
+          <div class="value">{{ stats.week }}</div>
+        </div>
+      </div>
+
+      <div class="kpis" style="margin-top:12px;">
+        <div class="kpi">
+          <div class="label">Brouillons</div>
+          <div class="value">{{ stats.draft }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Soumis</div>
+          <div class="value">{{ stats.submitted }}</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Service</div>
+          <div class="value">{{ agent.service.nom }}</div>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <a class="btn btn-primary" href="{% url 'contribution_new' %}">Nouvelle contribution</a>
+
+        {# Si tu as déjà une page "mes contributions", remplace le lien ici #}
+        {# Exemple possible: {% url 'my_contributions' %} #}
+        <a class="btn" href="{% url 'agent_profile' %}">Mon dossier</a>
+
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+          {% csrf_token %}
+          <button class="btn" type="submit">Déconnexion</button>
+        </form>
+      </div>
+
+      <div style="margin-top:18px; padding:14px; border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.05);">
+        <div style="font-weight:800;">Message institutionnel</div>
+        <div style="color:var(--muted); margin-top:6px;">
+          Nous priorisons la qualité : une contribution claire et structurée vaut plus que dix messages.
+          Chaque action est traçable et valorisée.
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div style="font-weight:800; margin-bottom:10px;">Dernières contributions</div>
+
+        {% if last_items %}
+          <div style="display:grid; gap:10px;">
+            {% for c in last_items %}
+              <div style="padding:12px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.05);">
+                <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start;">
+                  <div>
+                    <div style="font-weight:800;">{{ c.titre }}</div>
+                    <div style="color:var(--muted); font-size:13px; margin-top:4px;">
+                      Statut : {{ c.get_statut_display }} • Priorité : {{ c.priorite }} • {{ c.date_creation|date:"d/m/Y H:i" }}
+                    </div>
+                  </div>
+
+                  <button class="btn" type="button" onclick="openResume({{ c.id }})">
+                    Résumé IA
+                  </button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert">Nous n’avons encore aucune contribution enregistrée pour ce profil.</div>
+        {% endif %}
+      </div>
+
+    {% else %}
+      <div class="alert">
+        Aucun profil agent n’est lié à ce compte.
+        Demande à l’administrateur de te lier à un Agent.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Modal Résumé IA -->
+<div id="aiModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:24px; z-index:9999;">
+  <div style="max-width:780px; margin:40px auto; background:rgba(20,30,40,.98); border:1px solid var(--line); border-radius:18px; padding:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <div style="font-weight:900;">Résumé IA</div>
+      <button class="btn btn-ghost" type="button" onclick="closeModal()">Fermer</button>
+    </div>
+
+    <pre id="aiResult" style="white-space:pre-wrap; margin-top:12px; color:var(--text); font-family:inherit;"></pre>
+  </div>
+</div>
+
+<script>
+  async function openResume(id) {
+    const modal = document.getElementById("aiModal");
+    const out = document.getElementById("aiResult");
+
+    modal.style.display = "block";
+    out.textContent = "Analyse en cours...";
+
+    try {
+      const r = await fetch(`/agents/contributions/${id}/resume/`, {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      const data = await r.json();
+
+      if (!data.ok) {
+        out.textContent = "Erreur: " + (data.error || "inconnue");
+        return;
+      }
+
+      out.textContent = data.resume || "(vide)";
+    } catch (e) {
+      out.textContent = "Erreur: " + e;
+    }
+  }
+
+  function closeModal() {
+    document.getElementById("aiModal").style.display = "none";
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="card-title mb-0">Historique des Décisions</h1>
+            <p class="card-subtitle mt-1">Liste chronologique des décisions prises par les Chefs et la Présidence.</p>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Titre de la Décision</th>
+                            <th>Contribution</th>
+                            <th>Décision</th>
+                            <th>Prise par</th>
+                            <th>Niveau</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for decision in decisions %}
+                        <tr>
+                            <td>{{ decision.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ decision.title }}</td>
+                            <td>
+                                {% if decision.contribution %}
+                                    Contrib. #{{ decision.contribution.pk }} ({{ decision.contribution.agent.nom }})
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-{{ decision.decision|lower }}">{{ decision.get_decision_display }}</span></td>
+                            <td>{{ decision.created_by.username|default:"Système" }}</td>
+                            <td>{{ decision.get_level_display }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Aucune décision enregistrée.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

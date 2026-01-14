@@ -1,0 +1,68 @@
+{% extends "accounts/base.html" %}
+{% block title %}Connexion • MBONGI-AGENTS{% endblock %}
+
+{% block content %}
+<div class="grid">
+  <section class="card login-card">
+    <div class="card-header">
+      <div class="card-title">Connexion Agent</div>
+      <div class="card-subtitle">
+        Accès interne • Authentification requise • Traçabilité institutionnelle
+      </div>
+    </div>
+    <div class="card-body">
+
+      {% if form.errors %}
+        <div class="alert">Identifiants invalides. Veuillez réessayer.</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="field">
+          <label for="id_username">Identifiant</label>
+          {{ form.username }}
+        </div>
+
+        <div class="field" style="margin-top:12px;">
+          <label for="id_password">Mot de passe</label>
+          {{ form.password }}
+        </div>
+
+        <div style="margin-top:16px; display:flex; gap:10px; align-items:center;">
+          <button class="btn btn-primary" type="submit">Se connecter</button>
+          <a class="btn btn-ghost" href="/admin/">Admin</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="card-header">
+      <div class="card-title">Pourquoi MBONGI-AGENTS ?</div>
+      <div class="card-subtitle">Unifier • Structurer • Valoriser</div>
+    </div>
+    <div class="card-body">
+      <p style="color:var(--muted); margin-top:0;">
+        Ce portail est conçu pour renforcer la coordination et la qualité administrative,
+        tout en rendant visible l’utilité de chaque contribution.
+      </p>
+
+      <div class="kpis" style="margin-top:14px;">
+        <div class="kpi">
+          <div class="label">Accès</div>
+          <div class="value">Contrôlé</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Partage</div>
+          <div class="value">Sécurisé</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Impact</div>
+          <div class="value">Traçable</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

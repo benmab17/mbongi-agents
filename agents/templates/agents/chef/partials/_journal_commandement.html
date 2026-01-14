@@ -1,0 +1,12 @@
+<ul class="cc-command-journal">
+    {% for log in command_journal %}
+    <li>
+        <span class="cc-log-time">{{ log.timestamp|date:"d/m H:i" }}</span>
+        <span class="cc-log-user">{{ log.user.username|default:"Système" }}</span>
+        <span class="cc-log-action">{{ log.get_action_display }}</span>
+        <span class="cc-log-target">{{ log.target_repr }}</span>
+    </li>
+    {% empty %}
+    <li>Aucune activité récente pour le service.</li>
+    {% endfor %}
+</ul>

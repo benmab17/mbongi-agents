@@ -1,0 +1,50 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Contributions partagées</h1>
+            <p class="mb-0">Renseignements reçus par votre service</p>
+        </div>
+        <div class="card-body">
+            {% if shares %}
+                <ul class="list-group list-group-flush">
+                    {% for share in shares %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <span class="badge bg-info text-dark me-2">{{ share.service_source.nom }}</span>
+                                    <span class="fw-semibold">{{ share.contribution.titre }}</span>
+                                    <div class="text-muted small mt-1">
+                                        Partag?e le {{ share.created_at|date:"d/m/Y H:i" }}
+                                    </div>
+                                    {% if share.motif %}
+                                        <div class="mt-2">{{ share.motif }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {% if share.contribution.statut == "VALIDATED" %}
+                                        <span class="badge bg-success">VALID?E</span>
+                                    {% elif share.contribution.statut == "SUBMITTED" %}
+                                        <span class="badge bg-warning text-dark">SOUMISE</span>
+                                    {% elif share.contribution.statut == "DRAFT" %}
+                                        <span class="badge bg-secondary">BROUILLON</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">{{ share.contribution.statut }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-secondary mb-0">
+                    Aucune contribution partag?e pour le moment.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

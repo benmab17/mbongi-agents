@@ -1,0 +1,40 @@
+<div class="recoupement-header">
+    {% if overdue_count > 0 %}
+    <div class="overdue-counter overdue-red">
+        {{ overdue_count }} EN RETARD
+    </div>
+    {% endif %}
+</div>
+<div class="cc-recoupement-list">
+    {% for ticket in recoupement_queue %}
+    <div class="cc-recoupement-ticket">
+        <div class="ticket-info">
+            <span class="cc-signal-badge level-{{ ticket.level|lower }}">{{ ticket.level }}</span>
+            <strong class="ticket-title">{{ ticket.title }}</strong>
+            <span class="ticket-meta">créé le {{ ticket.created_at|date:"d/m H:i" }}</span>
+            {% if ticket.is_overdue %}
+                <span class="badge overdue-badge level-{{ ticket.overdue_level|lower }}">EN RETARD: {{ ticket.overdue_hours }}h</span>
+            {% endif %}
+        </div>
+        <div class="ticket-actions">
+            <a href="{% url 'chef_view_recoupement' ticket.pk %}" class="btn btn-sm btn-outline-info">Voir</a>
+            {% if ticket.status == 'OPEN' %}
+            <form action="{% url 'chef_take_recoupement' ticket.pk %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-primary">Prendre en charge</button>
+            </form>
+            {% elif ticket.status == 'IN_PROGRESS' %}
+                {% if ticket.taken_by %}
+                <span class="ticket-meta-owner">Pris par: {{ ticket.taken_by.username }}</span>
+                {% endif %}
+            <form action="{% url 'chef_close_recoupement' ticket.pk %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-success">Clôturer</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">Aucun recoupement en cours.</p>
+    {% endfor %}
+</div>

@@ -1,0 +1,41 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">Chef &mdash; Cr&eacute;er micro-mission</h1>
+            <p class="mb-0">Assignation directe (V1)</p>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.agent.id_for_label }}" class="form-label">Agent</label>
+                    {{ form.agent }}
+                    {{ form.agent.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">Titre</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">D&eacute;tails (optionnel)</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.initial_status.id_for_label }}" class="form-label">Statut initial</label>
+                    {{ form.initial_status }}
+                    {{ form.initial_status.errors }}
+                </div>
+                {{ form.non_field_errors }}
+                <button type="submit" class="btn btn-primary">CR&Eacute;ER</button>
+                <a href="{% url 'chef_commandement' %}" class="btn btn-secondary">Retour</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

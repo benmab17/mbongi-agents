@@ -1,0 +1,21 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="card-title mb-0">{{ title }}</h1>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+            </form>
+        </div>
+        <div class="card-footer text-end">
+            <a href="{% url 'team_view' %}" class="btn btn-link">Annuler</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

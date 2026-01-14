@@ -1,0 +1,145 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+    <p>{{ message }}</p>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            &Eacute;tat Op&eacute;rationnel
+        </div>
+        <div class="card-body">
+            <p><strong>Statut actuel:</strong> {{ agent_current_status }}</p>
+            <p><strong>Derni&egrave;re mise &agrave; jour:</strong> {{ last_status_update|date:"d/m/Y H:i" }}</p>
+
+            {% if is_patrolling %}
+                <form action="{% url 'agent_end_patrol' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Terminer Patrouille</button>
+                </form>
+            {% else %}
+                <form action="{% url 'agent_start_patrol' %}" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">D&eacute;marrer Patrouille</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            Micro-Missions (A8.3-2)
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'propose_micro_mission' %}" class="mb-3">
+                {% csrf_token %}
+                <div class="mb-2">
+                    <label for="id_title" class="form-label">Titre</label>
+                    <input type="text" name="title" maxlength="120" class="form-control" id="id_title" required>
+                </div>
+                <div class="mb-2">
+                    <label for="id_description" class="form-label">D&eacute;tails (optionnel)</label>
+                    <textarea name="description" class="form-control" id="id_description" rows="3"></textarea>
+                </div>
+                <button type="submit" class="badge link">PROPOSER UNE MICRO-MISSION</button>
+            </form>
+
+            {% if micro_proposed %}
+                <h5>Propos&eacute;es</h5>
+                <ul class="list-group mb-3">
+                    {% for mission in micro_proposed %}
+                        <li class="list-group-item">
+                            {{ mission.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if micro_todo %}
+                <h5>&Agrave; faire</h5>
+                <ul class="list-group mb-3">
+                    {% for mission in micro_todo %}
+                        <li class="list-group-item">
+                            {{ mission.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if micro_in_progress %}
+                <h5>En cours</h5>
+                <ul class="list-group mb-3">
+                    {% for mission in micro_in_progress %}
+                        <li class="list-group-item">
+                            {{ mission.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if micro_done %}
+                <h5>Termin&eacute;es (r&eacute;centes)</h5>
+                <ul class="list-group mb-3">
+                    {% for mission in micro_done %}
+                        <li class="list-group-item">
+                            {{ mission.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if not micro_todo and not micro_in_progress and not micro_done %}
+                <p class="text-muted">Aucune micro-mission assign&eacute;e pour le moment.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if is_patrolling %}
+    <div class="card mt-4">
+        <div class="card-header">
+            Micro-Missions
+        </div>
+        <div class="card-body">
+            {% if claimed_microtasks %}
+                <h5>Vos Micro-Missions en cours:</h5>
+                <ul class="list-group mb-3">
+                    {% for microtask in claimed_microtasks %}
+                        <li class="list-group-item">
+                            {{ microtask.title }} ({{ microtask.get_task_type_display }})
+                            <form action="{% url 'agent_complete_microtask' microtask.pk %}" method="POST" style="display: inline; float: right;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary">Terminer</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if suggested_microtask %}
+                <h5>Micro-Mission suggérée:</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ suggested_microtask.title }}</h5>
+                        <p class="card-text">{{ suggested_microtask.instructions }}</p>
+                        <p class="card-text"><small class="text-muted">Type: {{ suggested_microtask.get_task_type_display }}</small></p>
+                        <form action="{% url 'agent_accept_microtask' suggested_microtask.pk %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">Accepter la mission</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                {% if not claimed_microtasks %}
+                    <p class="text-muted">Aucune micro-mission disponible pour le moment.</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'agent_profile' %}" class="btn btn-secondary mt-4">Retour au dossier</a>
+</div>
+{% endblock %}
+

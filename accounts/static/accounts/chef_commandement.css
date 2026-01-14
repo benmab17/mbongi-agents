@@ -1,0 +1,340 @@
+/* STYLE POUR LA PAGE CHEF COMMANDEMENT (mbongi-agents) */
+/* Thème: Centre de Commandement, high-tech, dark, grilles fines, tactique */
+
+:root {
+    --cc-bg: #0a0a0c;
+    --cc-text: #e0e0e0;
+    --cc-accent: #00bcd4; /* Cyan pour plus de contraste avec Présidence */
+    --cc-border: rgba(0, 188, 212, 0.2);
+    --cc-panel-bg: rgba(5, 20, 25, 0.3);
+    --cc-font-mono: 'Roboto Mono', monospace;
+    --cc-font-sans: 'Orbitron', sans-serif;
+
+    --status-stable: #4caf50; /* Vert */
+    --status-tension: #ff9800; /* Orange */
+    --status-critique: #f44336; /* Rouge */
+    --status-info: #2196f3; /* Bleu */
+}
+
+/* Base */
+.command-center-shell {
+    background-color: var(--cc-bg);
+    color: var(--cc-text);
+    font-family: var(--cc-font-mono);
+    min-height: 100vh;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Effet grille de fond (similaire à présidence) */
+.command-center-shell::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.5) 3px,
+        rgba(0, 0, 0, 0.5) 4px
+    ), repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.5) 3px,
+        rgba(0, 0, 0, 0.5) 4px
+    );
+    background-size: 40px 40px;
+    animation: scanlines-bg 15s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes scanlines-bg {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+}
+
+/* Header */
+.cc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--cc-border);
+    background: var(--cc-panel-bg);
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.1);
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.cc-republic {
+    font-family: var(--cc-font-sans);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--cc-accent);
+    text-shadow: 0 0 5px var(--cc-accent);
+}
+
+.cc-center-name {
+    font-family: var(--cc-font-sans);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--cc-text);
+    margin-top: 0.5rem;
+}
+
+.cc-last-update {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+/* Main Grid */
+.cc-main-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Deux colonnes pour la vue chef */
+    grid-template-rows: auto auto;
+    gap: 1rem;
+    flex-grow: 1;
+    position: relative;
+    z-index: 1;
+}
+
+/* Panels (générique) */
+.cc-panel {
+    border: 1px solid var(--cc-border);
+    background: var(--cc-panel-bg);
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.08);
+    overflow: hidden;
+}
+
+.cc-panel-title {
+    font-family: var(--cc-font-sans);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--cc-accent);
+    border-bottom: 1px solid var(--cc-border);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* KPI Grid pour Commandement */
+.cc-kpis-commandement-panel {
+    grid-column: 1 / span 1;
+}
+.cc-kpis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes pour les KPIs */
+    gap: 0.8rem;
+}
+.cc-kpi {
+    border: 1px solid rgba(0, 188, 212, 0.1);
+    padding: 0.8rem;
+    text-align: center;
+    background: rgba(0, 188, 212, 0.05);
+}
+.cc-kpi-label { font-size: 0.75rem; opacity: 0.7; }
+.cc-kpi-value { font-family: var(--cc-font-sans); font-size: 1.5rem; font-weight: bold; color: var(--cc-accent); margin-top: 0.3rem; }
+.cc-kpi-lg { grid-column: 1 / span 3; } /* Pour les grands KPIs */
+
+
+/* Missions Prioritaires */
+.cc-priority-missions-panel {
+    grid-column: 1 / span 1;
+}
+.cc-mission-list { list-style: none; padding: 0; }
+.cc-mission-list li {
+    background: rgba(0, 188, 212, 0.05);
+    border: 1px solid rgba(0, 188, 212, 0.1);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+.cc-mission-priority {
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.75rem;
+    background: var(--status-info);
+    color: #fff;
+}
+.priority-1 { background: #4caf50; } /* Basse */
+.priority-2 { background: #ffeb3b; color: #333; } /* Moyenne */
+.priority-3 { background: #ff9800; } /* Haute */
+.priority-4 { background: #f44336; } /* Critique */
+
+.cc-mission-title { flex-grow: 1; font-weight: bold; }
+.cc-mission-agent { opacity: 0.7; font-size: 0.8rem; }
+.cc-mission-due-date { opacity: 0.7; font-size: 0.8rem; }
+.status-pending { color: #2196f3; }
+.status-in_progress { color: #ffeb3b; }
+.status-completed { color: #4caf50; }
+.status-failed { color: #f44336; }
+
+
+/* File de Validation */
+.cc-validation-queue-panel {
+    grid-column: 2 / span 1;
+}
+.cc-validation-list { list-style: none; padding: 0; }
+.cc-validation-list li {
+    background: rgba(0, 188, 212, 0.05);
+    border: 1px solid rgba(0, 188, 212, 0.1);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+.cc-contrib-priority {
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.75rem;
+    background: var(--status-info);
+    color: #fff;
+}
+.cc-contrib-title { flex-grow: 1; font-weight: bold; }
+.cc-contrib-agent { opacity: 0.7; font-size: 0.8rem; }
+.cc-contrib-date { opacity: 0.7; font-size: 0.8rem; }
+.btn-action {
+    background-color: var(--cc-accent);
+    color: var(--cc-bg);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+/* Journal de Commandement */
+.cc-command-journal-panel {
+    grid-column: 1 / span 2; /* Prend les deux colonnes */
+}
+.cc-command-journal { list-style: none; padding: 0; }
+.cc-command-journal li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    background: rgba(0, 188, 212, 0.02);
+    padding: 0.3rem;
+    border-radius: 4px;
+}
+.cc-log-time { opacity: 0.6; min-width: 80px; }
+.cc-log-user { color: var(--cc-accent); font-weight: bold; }
+.cc-log-action { font-weight: bold; }
+.cc-log-target { opacity: 0.8; flex-grow: 1; }
+
+
+/* Responsive */
+@media (max-width: 992px) {
+    .cc-main-grid {
+        grid-template-columns: 1fr;
+    }
+    .cc-kpis-commandement-panel, .cc-priority-missions-panel,
+    .cc-validation-queue-panel, .cc-command-journal-panel {
+        grid-column: 1 / span 1;
+    }
+}
+
+/* Styles pour les nouveaux blocs de recoupement et signaux faibles */
+.cc-weak-signals-panel, .cc-recoupement-queue-panel {
+    grid-column: 1 / span 1; /* S'assure qu'ils prennent une colonne */
+}
+
+/* Styles partagés avec presidence.css mais avec les couleurs du chef */
+.cc-signal-badge {
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: #000;
+    text-transform: uppercase;
+}
+.level-yellow { background-color: var(--status-tension); color: #000; }
+.level-orange { background-color: #fd7e14; color: #fff;}
+.level-red { background-color: var(--status-critique); color: #fff;}
+
+
+/* Signaux Faibles */
+.cc-weak-signal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 188, 212, 0.05);
+    border: 1px solid rgba(0, 188, 212, 0.1);
+    padding: 0.6rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+.signal-info { flex-grow: 1; display: flex; align-items: center; gap: 0.5rem; }
+.signal-title { font-weight: bold; color: var(--cc-accent); }
+.signal-evidence { font-size: 0.8rem; opacity: 0.7; }
+.btn-outline-warning { border-color: var(--status-tension); color: var(--status-tension); }
+
+
+/* File de Recoupement */
+.cc-recoupement-ticket {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 188, 212, 0.05);
+    border: 1px solid rgba(0, 188, 212, 0.1);
+    padding: 0.6rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+.ticket-info { flex-grow: 1; display: flex; align-items: center; gap: 0.5rem; }
+.ticket-title { font-weight: bold; }
+.ticket-meta { font-size: 0.8rem; opacity: 0.7; }
+.ticket-actions .btn-primary { background-color: var(--status-info); border: none; }
+.ticket-actions .btn-success { background-color: var(--status-stable); border: none; }
+.text-muted { opacity: 0.6; text-align: center; font-style: italic; padding: 1rem; }
+
+/* Styles pour les retards */
+.recoupement-header {
+    margin-bottom: 0.5rem;
+}
+.overdue-counter {
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    color: #fff;
+    animation: pulse-bg 1.5s infinite alternate;
+}
+.overdue-red { background-color: var(--status-critique); }
+
+.overdue-badge {
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    color: #fff;
+    text-transform: uppercase;
+}
+.institutional-reminder {
+    border-left: 4px solid var(--status-critique);
+    background-color: rgba(244, 67, 54, 0.1);
+    padding: 0.8rem;
+    margin-top: 1rem;
+    font-style: italic;
+}
+
+@keyframes pulse-bg {
+    from { background-color: var(--status-critique); }
+    to { background-color: #a1281f; }
+}

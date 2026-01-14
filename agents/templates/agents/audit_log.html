@@ -1,0 +1,70 @@
+{% extends "accounts/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="card-title mb-0">Journal d'Audit Global</h1>
+            <p class="card-subtitle mt-1">Traçabilité des actions importantes du système.</p>
+        </div>
+        <div class="card-body">
+            <!-- Filtres -->
+            <form method="get" class="mb-4 p-3 border rounded bg-light">
+                <div class="row align-items-end g-2">
+                    <div class="col-md">
+                        <label for="action" class="form-label">Action</label>
+                        <select name="action" id="action" class="form-select">
+                            <option value="">Toutes</option>
+                            {% for key, value in actions %}
+                                <option value="{{ key }}" {% if current_action == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md">
+                        <label for="user" class="form-label">Utilisateur</label>
+                        <select name="user" id="user" class="form-select">
+                            <option value="">Tous</option>
+                            {% for u in users %}
+                                <option value="{{ u.id }}" {% if current_user == u.id %}selected{% endif %}>{{ u.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="submit" class="btn btn-primary">Filtrer</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Table des logs -->
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date & Heure</th>
+                            <th>Utilisateur</th>
+                            <th>Action</th>
+                            <th>Cible</th>
+                            <th>Adresse IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td><small>{{ log.timestamp|date:"d/m/Y H:i:s" }}</small></td>
+                            <td>{{ log.user.username|default:"N/A" }}</td>
+                            <td><span class="badge bg-secondary">{{ log.get_action_display }}</span></td>
+                            <td><small>{{ log.target_repr|truncatechars:80 }}</small></td>
+                            <td>{{ log.ip_address|default:"N/A" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">Aucune entrée dans le journal.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

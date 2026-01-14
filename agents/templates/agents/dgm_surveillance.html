@@ -1,0 +1,46 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 class="h3 mb-0">DGM &mdash; Profil &agrave; surveiller</h1>
+            <p class="mb-0">Vigilance pr&eacute;ventive (V1)</p>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.identity_hint.id_for_label }}" class="form-label">Identit&eacute; / Alias (si connu)</label>
+                    {{ form.identity_hint }}
+                    {{ form.identity_hint.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.border_post.id_for_label }}" class="form-label">Poste / Lieu</label>
+                    {{ form.border_post }}
+                    {{ form.border_post.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.reason.id_for_label }}" class="form-label">Motif de vigilance</label>
+                    {{ form.reason }}
+                    {{ form.reason.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.risk_level.id_for_label }}" class="form-label">Niveau de risque</label>
+                    {{ form.risk_level }}
+                    {{ form.risk_level.errors }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.optional_notes.id_for_label }}" class="form-label">Notes (optionnel)</label>
+                    {{ form.optional_notes }}
+                    {{ form.optional_notes.errors }}
+                </div>
+                {{ form.non_field_errors }}
+                <button type="submit" class="btn btn-primary">ENREGISTRER</button>
+                <a href="{% url 'agent_profile' %}" class="btn btn-secondary">Retour</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

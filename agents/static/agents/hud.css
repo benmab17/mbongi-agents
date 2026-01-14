@@ -1,0 +1,199 @@
+:root{
+  --bg:#071019;
+  --panel:rgba(14,24,34,.78);
+  --line:rgba(255,255,255,.10);
+  --text:#e8eef7;
+  --muted:#b7c4d6;
+  --accent:#f4b94a;
+  --green:#58d68d;
+  --glow:rgba(0,255,255,.14);
+}
+
+.hud-topbar{display:flex; justify-content:flex-end; margin:6px 0 10px;}
+.hud-badge{font-size:12px; padding:6px 10px; border:1px solid var(--line); background:rgba(0,0,0,.25); border-radius:10px;}
+.hud-sep{opacity:.5; margin:0 10px;}
+
+.hud-frame{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.25));
+  box-shadow:0 0 0 1px var(--glow) inset, 0 0 40px rgba(0,0,0,.45);
+  padding:16px;
+}
+
+.hud-header{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px;}
+.hud-org{letter-spacing:.06em; font-weight:700;}
+.hud-country{opacity:.75; font-size:12px; margin-top:4px;}
+.hud-pill{border:1px solid var(--line); padding:8px 10px; border-radius:12px; background:rgba(0,0,0,.22);}
+.hud-accent{color:var(--accent); font-weight:800;}
+
+.hud-grid{display:grid; grid-template-columns:320px 1fr 320px; gap:14px;}
+@media (max-width: 1100px){.hud-grid{grid-template-columns:1fr;}}
+.card{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel);
+  padding:14px;
+  box-shadow:0 0 0 1px var(--glow) inset;
+}
+
+.hud-left .photo-box{border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative;}
+.photo{width:100%; display:block;}
+.placeholder{height:260px; display:flex; align-items:center; justify-content:center; opacity:.6;}
+.access{
+  position:absolute; left:10px; bottom:10px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(88,214,141,.5);
+  color:#dff7ea; padding:8px 10px; border-radius:10px;
+  font-weight:800; letter-spacing:.06em;
+}
+
+.kv{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+.kv span{display:block; opacity:.7; font-size:12px;}
+.kv b{display:block; margin-top:2px;}
+
+.checks{display:grid; gap:6px; margin:12px 0; opacity:.9;}
+.mini{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.mini span{display:block; opacity:.7; font-size:12px;}
+
+.hud-identity .name{margin:0; letter-spacing:.04em;}
+.hud-identity .line{display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; margin-top:10px;}
+.hud-identity span{display:block; opacity:.7; font-size:12px;}
+
+.hud-map .map-title{font-weight:800; margin-bottom:8px;}
+.map-box{height:230px; border:1px dashed var(--line); border-radius:14px; display:flex; align-items:center; justify-content:center;}
+.map-placeholder{opacity:.75;}
+.hud-footnote{margin-top:10px; font-size:12px; opacity:.65;}
+
+.section-title{font-weight:900; letter-spacing:.05em; font-size:12px; opacity:.85; margin-bottom:8px;}
+.last-list{list-style:none; padding:0; margin:0; display:grid; gap:10px;}
+.last-list li{border:1px solid var(--line); border-radius:14px; padding:10px; background:rgba(0,0,0,.18);}
+.tag{border:1px solid var(--line); border-radius:999px; padding:3px 8px; margin-left:8px; font-size:12px; opacity:.85;}
+.muted{opacity:.7;}
+
+.specs{margin:0; padding-left:18px; display:grid; gap:6px;}
+.levels{display:grid; gap:10px;}
+.lvl{display:grid; gap:6px;}
+.lvl span{font-size:12px; opacity:.8;}
+.bar{height:10px; border-radius:999px; border:1px solid var(--line); background:rgba(0,0,0,.25); overflow:hidden;}
+.bar i{display:block; height:100%; background:linear-gradient(90deg, rgba(244,185,74,.9), rgba(88,214,141,.9));}
+.status{border:1px solid var(--line); border-radius:14px; padding:10px; background:rgba(0,0,0,.18);}
+.status.ok{border-color:rgba(88,214,141,.35); color:#dff7ea;}
+
+/* ===== Photo badge institutionnel ===== */
+.photo-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.photo-wrap .photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Badge HUD en bas de photo */
+.photo-badge {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  padding: 10px 10px 9px;
+  border-radius: 10px;
+  background: rgba(5, 10, 16, 0.70);
+  border: 1px solid rgba(0, 255, 200, 0.28);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25) inset;
+  backdrop-filter: blur(3px);
+}
+
+.photo-badge-label {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(220, 255, 245, 0.75);
+}
+
+.photo-badge-name {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(235, 255, 252, 0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.45);
+}
+
+.photo-badge-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(210, 255, 245, 0.70);
+}
+
+/* Zone bouton sous photo */
+.photo-action {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Note staff */
+.staff-note {
+  margin-top: 10px;
+}
+
+/* ===== Badge identité sur photo ===== */
+.photo-wrap{
+  position: relative;
+  width: 100%;
+}
+
+.photo-wrap .photo{
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* Badge en bas, au-dessus de la photo */
+.photo-badge{
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  padding: 10px 10px 8px;
+  border-radius: 12px;
+  background: rgba(5, 12, 18, 0.72);
+  border: 1px solid rgba(0, 255, 200, 0.28);
+  backdrop-filter: blur(3px);
+  z-index: 3;
+}
+
+.photo-badge-label{
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(220, 255, 245, 0.75);
+}
+
+.photo-badge-name{
+  display: block;
+  margin-top: 2px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(240, 255, 252, 0.95);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+}
+
+.photo-badge-meta{
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(210, 255, 245, 0.70);
+}

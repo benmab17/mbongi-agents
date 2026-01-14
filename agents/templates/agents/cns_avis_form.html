@@ -1,0 +1,51 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <h1 class="h3 mb-0">R&eacute;diger un avis CNS</h1>
+                <p class="mb-0">Note strat&eacute;gique (V1)</p>
+            </div>
+            <a href="{% url 'cns_dashboard' %}" class="btn btn-outline-light btn-sm">Retour CNS</a>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <div class="text-danger small">{{ form.title.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                        <div class="text-danger small">{{ form.content.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.urgency.id_for_label }}" class="form-label">{{ form.urgency.label }}</label>
+                    {{ form.urgency }}
+                    {% if form.urgency.errors %}
+                        <div class="text-danger small">{{ form.urgency.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.recommendation.id_for_label }}" class="form-label">{{ form.recommendation.label }}</label>
+                    {{ form.recommendation }}
+                    {% if form.recommendation.errors %}
+                        <div class="text-danger small">{{ form.recommendation.errors }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">Transmettre</button>
+                <a href="{% url 'cns_avis_list' %}" class="btn btn-link">Voir avis</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

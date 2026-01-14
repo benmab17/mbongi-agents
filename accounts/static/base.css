@@ -1,0 +1,287 @@
+/* =========================================================
+   MBONGI-AGENTS — Base UI (institutionnel / dark)
+   Fichier sûr — n'interfère pas avec team.css
+   ========================================================= */
+
+/* ---------- Variables globales ---------- */
+:root{
+  --bg-main:#07131f;
+  --bg-alt:#0b1f2e;
+
+  --card-bg:rgba(255,255,255,.06);
+  --card-bg-soft:rgba(255,255,255,.04);
+
+  --line:rgba(255,255,255,.10);
+
+  --text:#eaf2ff;
+  --muted:rgba(255,255,255,.70);
+
+  --accent:rgba(120,255,180,.55);
+  --accent-strong:rgba(120,255,180,.85);
+
+  --danger:rgba(255,120,120,.55);
+}
+
+/* ---------- Reset minimal ---------- */
+*{
+  box-sizing:border-box;
+}
+html,body{
+  height:100%;
+}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color:var(--text);
+
+  background:
+    radial-gradient(1200px 600px at 15% 10%, rgba(30,120,160,.25), transparent 60%),
+    radial-gradient(900px 500px at 85% 15%, rgba(20,160,100,.18), transparent 60%),
+    linear-gradient(180deg, var(--bg-main), var(--bg-alt));
+}
+
+/* ---------- Liens ---------- */
+a{
+  color:inherit;
+  text-decoration:none;
+}
+a:hover{
+  opacity:.95;
+}
+
+/* ---------- Conteneur ---------- */
+.container{
+  max-width:1200px;
+  margin:0 auto;
+  padding:18px;
+}
+
+/* ---------- Topbar / Header ---------- */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line);
+}
+
+.brand{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+.badges{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.12);
+  font-size:12px;
+  font-weight:700;
+  opacity:.95;
+}
+
+.badge.danger{
+  border-color:var(--danger);
+  color:#ffdede;
+}
+
+/* ---------- Cartes ---------- */
+.card{
+  border:1px solid var(--line);
+  background:var(--card-bg);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.25);
+}
+
+.card-header{
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  margin-bottom:14px;
+}
+
+.card-title{
+  font-size:20px;
+  font-weight:900;
+}
+
+.card-subtitle{
+  margin-top:4px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ---------- Alertes ---------- */
+.alert{
+  padding:12px 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.18);
+  color:var(--muted);
+}
+
+/* ---------- KPI ---------- */
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:10px;
+}
+
+.kpi{
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.14);
+}
+
+.kpi .label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.kpi .value{
+  margin-top:6px;
+  font-size:20px;
+  font-weight:900;
+}
+
+/* ---------- Boutons ---------- */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.18);
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-primary{
+  border-color:var(--accent);
+  color:#eafff4;
+}
+
+.btn-primary:hover{
+  border-color:var(--accent-strong);
+}
+
+.btn-danger{
+  border-color:var(--danger);
+  color:#ffdede;
+}
+
+.btn-ghost{
+  background:transparent;
+  border-color:rgba(255,255,255,.10);
+}
+
+/* ---------- Formulaires ---------- */
+input, textarea, select{
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:12px;
+  padding:8px 10px;
+  color:var(--text);
+  font-family:inherit;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,.45);
+}
+
+/* ---------- Texte utilitaire ---------- */
+.muted{
+  color:var(--muted);
+}
+.center{
+  text-align:center;
+}
+/* === FORMS (fix style navigateur) === */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+select,
+textarea {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(10,14,22,0.72);
+  color: #eaeaf0;
+  outline: none;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(234,234,240,0.55);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(77,163,255,0.65);
+  box-shadow: 0 0 0 3px rgba(77,163,255,0.18);
+}
+
+button,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: #eaeaf0;
+  cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+  background: rgba(255,255,255,0.10);
+}
+
+.btn-primary {
+  background: rgba(77,163,255,0.18);
+  border-color: rgba(77,163,255,0.35);
+}
+/* === LOGIN PAGE (mise en forme propre) === */
+form p{
+  margin: 10px 0;
+}
+
+form label{
+  display:block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+form input[type="text"],
+form input[type="password"]{
+  display:block;
+  width: 320px;
+  max-width: 100%;
+}
+
+form button[type="submit"],
+form input[type="submit"]{
+  margin-top: 10px;
+}
