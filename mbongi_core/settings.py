@@ -14,25 +14,30 @@ SECRET_KEY = 'django-insecure-07(pa2udqy5o@94bi8foo&*kg!%ls+*%5pxq^h1v4ryap)wr^r
 
 DEBUG = True
 
-# 1. On autorise toujours le local
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# --- Section ALLOWED_HOSTS ---
+import os
 
-# 2. On ajoute dynamiquement l'URL Render (Variable automatique de Render)
-# Cette variable est TOUJOURS présente sur Render, pas besoin de la créer
+# 1. Base par défaut (Local + Domaine connu)
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mbongi-agents.onrender.com']
+
+# 2. Récupération automatique du hostname Render
 render_external_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if render_external_hostname:
     ALLOWED_HOSTS.append(render_external_hostname)
 
-# 3. On ajoute manuellement votre domaine spécifique par sécurité
-ALLOWED_HOSTS.append('mbongi-agents.onrender.com')
-
-# 4. Optionnel : On ajoute la variable d'environnement personnalisée si elle existe
-env_hosts = os.environ.get("ALLOWED_HOSTS")
-if env_hosts:
-    ALLOWED_HOSTS.extend([host.strip() for host in env_hosts.split(",")])
-
-# Nettoyage final pour éviter les doublons
+# 3. Nettoyage des doublons
 ALLOWED_HOSTS = list(set(ALLOWED_HOSTS))
+
+
+# --- Section SÉCURITÉ (À ajouter juste après) ---
+
+# Indispensable pour que Django accepte les connexions HTTPS de Render
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Obligatoire pour Django 6.x pour pouvoir se connecter à l'admin
+CSRF_TRUSTED_ORIGINS = [
+    "https://mbongi-agents.onrender.com",
+]
 
 
 
