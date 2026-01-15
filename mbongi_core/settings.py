@@ -16,28 +16,24 @@ SECRET_KEY = 'django-insecure-07(pa2udqy5o@94bi8foo&*kg!%ls+*%5pxq^h1v4ryap)wr^r
 
 DEBUG = True
 
-# --- ALLOWED_HOSTS (Render + Railway + Local) ---
-env_hosts = os.getenv("ALLOWED_HOSTS", "")
+# Assurez-vous que BASE_DIR est bien défini au début du fichier
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-ALLOWED_HOSTS = [h.strip() for h in env_hosts.split(",") if h.strip()]
+# --- CONFIGURATION STATIQUE ---
+STATIC_URL = 'static/'
 
-# fallback local
-if not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+# Dossier où Django va REGROUPER les fichiers pour la production
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Render (optionnel)
-render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
-if render_host:
-    ALLOWED_HOSTS.append(render_host)
+# Dossiers où Django cherche les fichiers en local
+# Si vous n'avez pas encore de dossier "static" à la racine, créez-le !
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Railway (optionnel mais utile)
-railway_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN")
-if railway_domain:
-    ALLOWED_HOSTS.append(railway_domain)
-
-# =========================
+# Indispensable pour que Railway serve les fichiers sans serveur externe
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" =========================
 # APPLICATIONS
 # =========================
+
 INSTALLED_APPS = [
     # Django core
     'django.contrib.admin',
