@@ -107,13 +107,21 @@ TEMPLATES = [
 # =========================
 # DATABASE
 # =========================
-DATABASES = {
-    "default": dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
+# 1. On récupère la configuration depuis DATABASE_URL sans valeur par défaut
+db_config = dj_database_url.config(conn_max_age=600)
+
+if db_config:
+    # Si on est sur Railway (DATABASE_URL existe)
+    DATABASES = {"default": db_config}
+    DATABASES["default"]["OPTIONS"] = {"sslmode": "require"}
+else:
+    # Si on est en local (DATABASE_URL absente)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # =========================
 # AUTH / LOGIN
