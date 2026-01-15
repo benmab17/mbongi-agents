@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "https://mbongi-agents-production.up.railway.app",
+    "https://*.up.railway.app",
 ]
 
 
