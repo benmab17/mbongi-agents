@@ -50,6 +50,10 @@ INSTALLED_APPS = [
     'agents',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://mbongi-agents-production.up.railway.app",
+]
+
 
 # =========================
 # MIDDLEWARE
