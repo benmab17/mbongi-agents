@@ -16,22 +16,21 @@ SECRET_KEY = 'django-insecure-07(pa2udqy5o@94bi8foo&*kg!%ls+*%5pxq^h1v4ryap)wr^r
 
 DEBUG = True
 
-# Assurez-vous que BASE_DIR est bien défini au début du fichier
+# Assurez-vous que BASE_DIR pointe vers la racine du projet
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- CONFIGURATION STATIQUE ---
+# --- CONFIGURATION STATIQUE POUR RAILWAY ---
 STATIC_URL = 'static/'
 
-# Dossier où Django va REGROUPER les fichiers pour la production
+# Indique à Django où mettre les fichiers rassemblés pour la production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Dossiers où Django cherche les fichiers en local
-# Si vous n'avez pas encore de dossier "static" à la racine, créez-le !
+# Indique à Django où chercher vos fichiers CSS/JS en local
+# Assurez-vous de CRÉER un dossier nommé 'static' à côté de manage.py
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Indispensable pour que Railway serve les fichiers sans serveur externe
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage" =========================
-# APPLICATIONS
+# Indispensable pour que Railway puisse lire et servir ces fichiers
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # =========================
 
 INSTALLED_APPS = [
